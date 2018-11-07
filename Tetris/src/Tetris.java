@@ -29,6 +29,11 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
+/**
+ * Tetris JavaFX Game
+ * @author James
+ * @since November 2018
+ */
 public class Tetris extends Application {
 	private final Color background = Color.LAWNGREEN;
 	private final double screenWidth = Screen.getPrimary().getVisualBounds().getWidth();
@@ -492,7 +497,7 @@ public class Tetris extends Application {
 	 * @throws IOException
 	 */
 	private ArrayList<String> highScores(boolean update) throws IOException {
-		String scores = new String (Files.readAllBytes(Paths.get("src/HighScores.txt")));
+		String scores = new String (Files.readAllBytes(Paths.get("HighScores.txt")));
 		
 		ArrayList<String> scoresList = new ArrayList<>(Arrays.asList(scores.split("\n")));
 		if(!update)
@@ -530,7 +535,7 @@ public class Tetris extends Application {
 			scoresList.add(high, "" + score);
 			scoresList.remove(5);
 			
-			BufferedWriter writer = new BufferedWriter(new FileWriter("src/Tetris/HighScores.txt"));
+			BufferedWriter writer = new BufferedWriter(new FileWriter("HighScores.txt"));
 			for(String str : scoresList)
 				writer.write(str + "\n");
 			writer.close();
