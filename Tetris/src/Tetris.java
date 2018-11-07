@@ -1,4 +1,3 @@
-package Tetris;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -472,7 +471,7 @@ public class Tetris extends Application {
 	 * @throws IOException
 	 */
 	private ArrayList<String> highScores(boolean update) throws IOException {
-		String scores = new String (Files.readAllBytes(Paths.get("src/Tetris/HighScores.txt")));
+		String scores = new String (Files.readAllBytes(Paths.get("src/HighScores.txt")));
 		
 		ArrayList<String> scoresList = new ArrayList<>(Arrays.asList(scores.split("\n")));
 		if(!update)
