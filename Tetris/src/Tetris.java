@@ -60,6 +60,9 @@ public class Tetris extends Application {
 		launch(args);
 	}
 	
+	/**
+	 * Initiallizes variables
+	 */
 	@Override
 	public void init() {
 		rect = new Rectangle[rowLength*numRows];
@@ -69,6 +72,9 @@ public class Tetris extends Application {
 		first = true;
 	}
 	
+	/**
+	 * Starts the game and sets {@link Stage} properties
+	 */
 	@Override
 	public void start(Stage theStage) throws Exception {
 		mainStage = theStage;
@@ -78,6 +84,10 @@ public class Tetris extends Application {
 		mainStage.show();
 	}
 	
+	/**
+	 * The welcome screen
+	 * @return The initial {@link Scene}
+	 */
 	private Scene initScene() {
 		Pane init = new Pane();
 		init.setBackground(new Background(new BackgroundFill(background, null, null)));
@@ -109,6 +119,10 @@ public class Tetris extends Application {
 		
 	}
 	
+	/**
+	 * Generates the main scene where the game is played
+	 * @return The main {@link Scene}
+	 */
 	private Scene mainScene() {
 		lineText = new Text("Lines: " + lines);
 		lineText.setFill(Color.WHITE);
@@ -386,40 +400,41 @@ public class Tetris extends Application {
 	}
 	
 	/**
+	 * Rotates the block counterclockwise
 	 * @see <a href="https://www.youtube.com/watch?v=Atlr5vvdchY">Source</a>
 	 */
 	private void rotateBlock() {///<3
 		int[] pivotPoint = new int[2];
-		int spot = 0;
+		int blockNum = 0;
 		switch(blockType) {
 		case STRAIGHT:
-			spot = 0;
+			blockNum = 0;
 			break;
 		case SQUARE:
-			spot = 1;
+			blockNum = 1;
 			break;
 		case T:
-			spot = 3;
+			blockNum = 3;
 			break;
 		case J:
-			spot = 1;
+			blockNum = 1;
 			break;
 		case L:
-			spot = 0;
+			blockNum = 0;
 			break;
 		case S:
-			spot = 1;
+			blockNum = 1;
 			break;
 		case Z:
-			spot = 1;
+			blockNum = 1;
 			break;
 		}
-		pivotPoint[0] = rows[spot]; pivotPoint[1] = cols[spot];
-		if(!canRotate(spot, pivotPoint))
+		pivotPoint[0] = rows[blockNum]; pivotPoint[1] = cols[blockNum];
+		if(!canRotate(blockNum, pivotPoint))
 			return;
 		ArrayList<Integer> moveList = new ArrayList<>();
 		for(int i = 0; i<4; i++) {
-			if(i!=spot) {
+			if(i!=blockNum) {
 				int[] point = {rows[i], cols[i]};
 				int[] Vr = {point[0]-pivotPoint[0], point[1]-pivotPoint[1]};
 				int[][] R = { {0, -1} , {1, 0} };
@@ -437,9 +452,15 @@ public class Tetris extends Application {
 		}
 	}
 	
-	private boolean canRotate(int spot, int[] pivotPoint) {
+	/**
+	 * Checks if the block can be rotated
+	 * @param blockNum The number of the block in the arrays of {@link rows} and {@link cols}
+	 * @param pivotPoint The point which the rotation pivots around
+	 * @return If the block can be rotated
+	 */
+	private boolean canRotate(int blockNum, int[] pivotPoint) {
 		for(int i = 0; i<4; i++) {
-			if(i!=spot) {
+			if(i!=blockNum) {
 				int[] point = {rows[i], cols[i]};
 				int[] Vr = {point[0]-pivotPoint[0], point[1]-pivotPoint[1]};
 				int[][] R = { {0, -1} , {1, 0} };
