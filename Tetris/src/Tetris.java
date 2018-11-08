@@ -10,12 +10,15 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.VPos;
+import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -43,6 +46,7 @@ import javafx.stage.Stage;
  * @since November 2018
  */
 public class Tetris extends Application {
+	private final Color mainColor = Color.LAWNGREEN;
 	private final double screenWidth = Screen.getPrimary().getVisualBounds().getWidth();
 	private final double screenHeight = Screen.getPrimary().getVisualBounds().getHeight();
 	
@@ -55,14 +59,15 @@ public class Tetris extends Application {
 	private final int numRows = 21;
 	private final double sideLength = screenHeight/25.0;
 	
-	private int score = 0;
+	private int score;
 	private Text scoreText;
-	private int lines = 0;
+	private int lines;
 	private Text lineText;
 	private Rectangle[] rect;
 	private Integer[] rows;
 	private Integer[] cols;
 	private boolean[] placed;
+	private Timer timer;
 	private boolean wait;
 	private enum Direction {LEFT, RIGHT, DOWN}
 	private enum BlockType {STRAIGHT, SQUARE, T, J, L, S, Z}
@@ -80,10 +85,13 @@ public class Tetris extends Application {
 	 */
 	@Override
 	public void init() {
+		score = 0;
+		lines = 0;
 		rect = new Rectangle[rowLength*numRows];
 		rows = new Integer[4];
 		cols = new Integer[4];
 		placed = new boolean[rect.length];
+		timer = new Timer();
 		wait = true;
 		nextBlocks = new BlockType[3]; //Cannot be less than 1
 		nextBlocksRect = new Rectangle[nextBlocks.length][8];
@@ -107,7 +115,7 @@ public class Tetris extends Application {
 	 */
 	private Scene initScene() {
 		Pane init = new Pane();
-		init.setBackground(new Background(new BackgroundFill(Color.LAWNGREEN, null, null)));
+		init.setBackground(new Background(new BackgroundFill(mainColor, null, null)));
 		init.setPrefSize(screenWidth, screenHeight);
 		EventHandler<Event> switchToMain = new EventHandler<Event>() {
 			@Override
@@ -193,21 +201,25 @@ public class Tetris extends Application {
 		
 		
 		
-		Timer timer = new Timer();
+		timer = new Timer();
 		timer.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
-				if(wait) {
-					newBlock();
-					wait=false;
-				}
-				else {
-					if(canMoveBlock(Direction.DOWN))
-						moveBlock(Direction.DOWN, 0); //Multiplier of 0 because it's not worth any points
-					else {
-						newBlock();
+				Platform.runLater(new Runnable() { //Allows scene switching
+					public void run() {
+						if(wait) {
+							newBlock();
+							wait=false;
+						}
+						else {
+							if(canMoveBlock(Direction.DOWN))
+								moveBlock(Direction.DOWN, 0); //Multiplier of 0 because it's not worth any points
+							else {
+								newBlock();
+							}
+						}
 					}
-				}
+				});
 			}
 		}, 3000, 1000); //Starts after 3 seconds, moves every 1
 		
@@ -266,6 +278,12 @@ public class Tetris extends Application {
 		AnchorPane.setLeftAnchor(nextBlocks, (sidePanel.getPrefWidth()-nextBlocks.getPrefWidth())/2);
 		
 		HBox hbox = new HBox(vbox, sidePanel);
+		
+		Pane startCover = new Pane();
+		startCover.setPrefSize(hbox.getPrefWidth(), hbox.getPrefHeight());
+		startCover.setBackground(new Background(new BackgroundFill(rectBg, null, null)));
+		Scene startScene = new Scene(startCover);
+		
 		Scene scene = new Scene(hbox);
 		scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
 			@Override
@@ -569,8 +587,10 @@ public class Tetris extends Application {
 						try {
 							highScores(true);
 						} catch (IOException e) {e.printStackTrace();}
-						System.exit(0);
-						//Not working -> mainStage.setScene(loseScene());
+						//System.exit(0);
+						timer.cancel();
+						timer.purge();
+						mainStage.setScene(loseScene());
 					}
 					removeFullRows();
 					return false;
@@ -607,7 +627,7 @@ public class Tetris extends Application {
 			blockNum = 1;
 			break;
 		case T:
-			blockNum = 3;
+			blockNum = 1;
 			break;
 		case J:
 			blockNum = 1;
@@ -792,11 +812,88 @@ public class Tetris extends Application {
 		scoreText.setText("Score: " + score);
 	}
 
-	@SuppressWarnings("unused")
 	private Scene loseScene() {
-		Text loss = new Text("You lost");
-		loss.setStyle("-fx-font: " + 30 + " " + font + ";");
-		Pane pane = new Pane(loss);
-		return new Scene(pane);
+		Pane panel = new Pane();
+		panel.setPrefSize(sideLength*20, sideLength*23);
+		panel.setBackground(new Background(new BackgroundFill(rectBg, null, null)));
+		
+		Pane loss = new Pane();
+		loss.setPrefSize(panel.getPrefWidth(), 2*panel.getPrefHeight()/3);
+		Text lossText = new Text("You lost with a score of " + score);
+		lossText.setFill(Color.WHITE);
+		lossText.setStyle("-fx-font: " + sideLength*1.5 + " " + font + ";");
+		lossText.setTextAlignment(TextAlignment.CENTER);
+		lossText.setWrappingWidth(loss.getPrefWidth());
+		lossText.setY(loss.getPrefHeight()/2);
+		loss.getChildren().add(lossText);
+		panel.getChildren().add(loss);
+		
+		Pane playAgain = new Pane();
+		playAgain.setPrefSize(2*panel.getPrefWidth()/3, panel.getPrefHeight()-loss.getPrefHeight());
+		playAgain.setTranslateY(loss.getPrefHeight());
+		playAgain.setOnMouseClicked(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent event) {
+				init();
+				mainStage.setScene(mainScene());
+			}
+		});
+		playAgain.setOnMouseEntered(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent event) {
+				playAgain.setOpacity(.95);
+			}
+		});
+		playAgain.setOnMouseExited(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent event) {
+				playAgain.setOpacity(1);
+			}
+		});
+		playAgain.setBackground(new Background(new BackgroundFill(mainColor, null, null)));
+		Text playAgainText = new Text("Click here to play again!");
+		playAgainText.setFill(Color.BLACK);
+		playAgainText.setStyle("-fx-font: " + sideLength + " " + font + ";");
+		playAgainText.setTextAlignment(TextAlignment.CENTER);
+		playAgainText.setWrappingWidth(playAgain.getPrefWidth());
+		playAgainText.setTextOrigin(VPos.CENTER);
+		playAgainText.setY(playAgain.getPrefHeight()/2);
+		playAgain.getChildren().add(playAgainText);
+		panel.getChildren().add(playAgain);
+		
+		Pane end = new Pane();
+		end.setPrefSize(panel.getPrefWidth()-playAgain.getPrefWidth(), playAgain.getPrefHeight());
+		end.setTranslateY(playAgain.getTranslateY());
+		end.setTranslateX(playAgain.getPrefWidth());
+		end.setBackground(playAgain.getBackground());
+		end.setOnMouseClicked(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent event) {
+				System.exit(0);
+			}
+		});
+		end.setOnMouseEntered(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent event) {
+				end.setOpacity(.95);
+			}
+		});
+		end.setOnMouseExited(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent event) {
+				end.setOpacity(1);
+			}
+		});
+		Text endText = new Text("Click here to end");
+		endText.setFill(Color.BLACK);
+		endText.setStyle("-fx-font: " + sideLength + " " + font + ";");
+		endText.setTextAlignment(TextAlignment.CENTER);
+		endText.setWrappingWidth(end.getPrefWidth());
+		endText.setTextOrigin(VPos.CENTER);
+		endText.setY(end.getPrefHeight()/2);
+		end.getChildren().add(endText);
+		panel.getChildren().add(end);
+		
+		return new Scene(panel);
 	}
 }
