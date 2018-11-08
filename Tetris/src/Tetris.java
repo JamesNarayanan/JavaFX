@@ -85,8 +85,8 @@ public class Tetris extends Application {
 		cols = new Integer[4];
 		placed = new boolean[rect.length];
 		wait = true;
-		nextBlocks = new BlockType[2];
-		nextBlocksRect = new Rectangle[2][8];
+		nextBlocks = new BlockType[3]; //Cannot be less than 1
+		nextBlocksRect = new Rectangle[nextBlocks.length][8];
 	}
 	
 	/**
@@ -181,7 +181,7 @@ public class Tetris extends Application {
 			rect[i].setY(sideLength*rowNum);
 			
 			rect[i].setFill(rectBg);
-			rect[i].setStroke((i<rowLength) ? Color.rgb(250, 250, 250) : Color.GREY);
+			rect[i].setStroke((i<rowLength) ? Color.WHITE : Color.GREY);
 			
 			if(colNum==rowLength-1) { //If the row has been filled
 				colNum=0;
@@ -220,12 +220,12 @@ public class Tetris extends Application {
 		Text nextBlocksText = new Text("Next Blocks");
 		nextBlocksText.setTextAlignment(TextAlignment.CENTER);
 		nextBlocksText.setTextOrigin(VPos.TOP);
-		nextBlocksText.setStyle("-fx-font: " + fontSize/1.5 + " " + font + ";");
+		nextBlocksText.setStyle("-fx-font: " + fontSize/1.2 + " " + font + ";");
 		nextBlocksText.setFill(Color.WHITE);
 		nextBlocksText.setY(sideLength/5);
 		
 		Pane nextBlocks = new Pane(nextBlocksText);
-		nextBlocks.setPrefSize(sideLength*9, sideLength*8);
+		nextBlocks.setPrefSize(sideLength*7, (this.nextBlocks.length*3+2)*sideLength);
 		nextBlocksText.setWrappingWidth(nextBlocks.getPrefWidth());
 		nextBlocks.setBorder(new Border(new BorderStroke(
 			Color.WHITE, 
@@ -237,14 +237,15 @@ public class Tetris extends Application {
 		colNum = 0;
 		rowNum = 0;
 		defaultTrans = (nextBlocks.getPrefWidth()-sideLength*4)/2;
-		for(int i = 0; i<2; i++) {
-			for(int j = 0; j<nextBlocksRect[0].length; j++) {
+		//Necessary for displayNextBlocks()
+		for(int i = 0; i<nextBlocksRect.length; i++) {
+			for(int j = 0; j<8; j++) {
 				nextBlocksRect[i][j] = new Rectangle(sideLength, sideLength);
 				nextBlocksRect[i][j].setStroke(rectBg);
 				nextBlocksRect[i][j].setFill(rectBg);
 				nextBlocksRect[i][j].setX(sideLength*colNum);
 				nextBlocksRect[i][j].setY(sideLength*rowNum);
-				nextBlocksRect[i][j].setTranslateY((i==0) ? sideLength*2 : sideLength*3);
+				nextBlocksRect[i][j].setTranslateY(sideLength*(i+2));
 				nextBlocksRect[i][j].setTranslateX(defaultTrans);
 				
 				if(colNum==3) {
@@ -255,10 +256,11 @@ public class Tetris extends Application {
 					colNum++;
 			}
 		}
-		nextBlocks.getChildren().addAll(nextBlocksRect[0]); nextBlocks.getChildren().addAll(nextBlocksRect[1]);
+		for(int i = 0; i<nextBlocksRect.length; i++)
+			nextBlocks.getChildren().addAll(nextBlocksRect[i]);
 		
 		AnchorPane sidePanel = new AnchorPane(nextBlocks);
-		sidePanel.setPrefSize(sideLength*10, vbox.getHeight());
+		sidePanel.setPrefSize(sideLength*8, vbox.getHeight());
 		sidePanel.setBackground(new Background(new BackgroundFill(rectBg, null, null)));
 		AnchorPane.setTopAnchor(nextBlocks, top.getPrefHeight());
 		AnchorPane.setLeftAnchor(nextBlocks, (sidePanel.getPrefWidth()-nextBlocks.getPrefWidth())/2);
@@ -304,7 +306,7 @@ public class Tetris extends Application {
 	 */
 	private void newBlock() { //Tetriminos always spawn with 3 empty blocks to the left
 		if(nextBlocks[0]==null) { //First time
-			for(int i = 0; i<2; i++) {
+			for(int i = 0; i<nextBlocks.length; i++) {
 				switch((int)(Math.random()*7)) { //*7 Because there are 7 different tetriminos and it is 0 referenced
 				case 0: //Straight
 					nextBlocks[i] = BlockType.STRAIGHT;
@@ -335,9 +337,9 @@ public class Tetris extends Application {
 		switch(nextBlocks[0]) {
 		case STRAIGHT: //Straight
 			color = Color.CYAN;
-			for(int i=0; i<rows.length; i++)
+			for(int i = 0; i<rows.length; i++)
 				rows[i] = 0;
-			for(int i=0; i<rows.length; i++)
+			for(int i = 0; i<rows.length; i++)
 				cols[i] = i+3;
 			rect[3].setFill(color);
 			rect[4].setFill(color);
@@ -400,28 +402,30 @@ public class Tetris extends Application {
 			break;
 		}
 		blockType = nextBlocks[0];
-		nextBlocks[0] = nextBlocks[1];
+		for(int i = 0; i<nextBlocks.length-1; i++) {
+			nextBlocks[i] = nextBlocks[i+1];
+		}
 		switch((int)(Math.random()*7)) { //Assigns new value
 		case 0: //Straight
-			nextBlocks[1] = BlockType.STRAIGHT;
+			nextBlocks[nextBlocks.length-1] = BlockType.STRAIGHT;
 			break;
 		case 1: //Square
-			nextBlocks[1] = BlockType.SQUARE;
+			nextBlocks[nextBlocks.length-1] = BlockType.SQUARE;
 			break;
 		case 2: //T
-			nextBlocks[1] = BlockType.T;
+			nextBlocks[nextBlocks.length-1] = BlockType.T;
 			break;
 		case 3: //J
-			nextBlocks[1] = BlockType.J;
+			nextBlocks[nextBlocks.length-1] = BlockType.J;
 			break;
 		case 4: //L
-			nextBlocks[1] = BlockType.L;
+			nextBlocks[nextBlocks.length-1] = BlockType.L;
 			break;
 		case 5: //S
-			nextBlocks[1] = BlockType.S;
+			nextBlocks[nextBlocks.length-1] = BlockType.S;
 			break;
 		case 6: //Z
-			nextBlocks[1] = BlockType.Z;
+			nextBlocks[nextBlocks.length-1] = BlockType.Z;
 			break;
 		}
 		displayNextBlocks();
@@ -431,12 +435,12 @@ public class Tetris extends Application {
 	}
 	
 	private void displayNextBlocks() {
-		for(int n = 0; n<2; n++) //Resets the colors
+		for(int n = 0; n<nextBlocksRect.length; n++) //Resets the colors
 			for(int i = 0; i<8; i++)
 				nextBlocksRect[n][i].setFill(rectBg);
 		
 		Color color;
-		for(int n = 0; n<2; n++) {
+		for(int n = 0; n<nextBlocksRect.length; n++) {
 			switch(nextBlocks[n]) {
 			case STRAIGHT: //Straight
 				for(int i = 0; i<8; i++)
