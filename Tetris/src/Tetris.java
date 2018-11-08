@@ -69,6 +69,7 @@ public class Tetris extends Application {
 	private BlockType blockType;
 	private BlockType[] nextBlocks;
 	private Rectangle[][] nextBlocksRect;
+	private double defaultTrans;
 	
 	public static void main(String[] args) {
 		launch(args);
@@ -235,15 +236,16 @@ public class Tetris extends Application {
 		
 		colNum = 0;
 		rowNum = 0;
+		defaultTrans = (nextBlocks.getPrefWidth()-sideLength*4)/2;
 		for(int i = 0; i<2; i++) {
 			for(int j = 0; j<nextBlocksRect[0].length; j++) {
 				nextBlocksRect[i][j] = new Rectangle(sideLength, sideLength);
-				nextBlocksRect[i][j].setStroke(Color.LIME);
+				nextBlocksRect[i][j].setStroke(rectBg);
 				nextBlocksRect[i][j].setFill(rectBg);
 				nextBlocksRect[i][j].setX(sideLength*colNum);
 				nextBlocksRect[i][j].setY(sideLength*rowNum);
 				nextBlocksRect[i][j].setTranslateY((i==0) ? sideLength*2 : sideLength*3);
-				nextBlocksRect[i][j].setTranslateX((nextBlocks.getPrefWidth()-sideLength*4)/2);
+				nextBlocksRect[i][j].setTranslateX(defaultTrans);
 				
 				if(colNum==3) {
 					colNum=0;
@@ -422,9 +424,85 @@ public class Tetris extends Application {
 			nextBlocks[1] = BlockType.Z;
 			break;
 		}
+		displayNextBlocks();
 		//System.out.println(Arrays.toString(nextBlocks));
 		
 		fixPlaced();
+	}
+	
+	private void displayNextBlocks() {
+		for(int n = 0; n<2; n++) //Resets the colors
+			for(int i = 0; i<8; i++)
+				nextBlocksRect[n][i].setFill(rectBg);
+		
+		Color color;
+		for(int n = 0; n<2; n++) {
+			switch(nextBlocks[n]) {
+			case STRAIGHT: //Straight
+				for(int i = 0; i<8; i++)
+					nextBlocksRect[n][i].setTranslateX(defaultTrans);
+				color = Color.CYAN;
+				nextBlocksRect[n][0].setFill(color);
+				nextBlocksRect[n][1].setFill(color);
+				nextBlocksRect[n][2].setFill(color);
+				nextBlocksRect[n][3].setFill(color);
+				break;
+			case SQUARE: //Square
+				for(int i = 0; i<8; i++)
+					nextBlocksRect[n][i].setTranslateX(defaultTrans+sideLength);
+				color = Color.YELLOW;
+				nextBlocksRect[n][0].setFill(color);
+				nextBlocksRect[n][1].setFill(color);
+				nextBlocksRect[n][4].setFill(color);
+				nextBlocksRect[n][5].setFill(color);
+				break;
+			case T: //T
+				for(int i = 0; i<8; i++)
+					nextBlocksRect[n][i].setTranslateX(defaultTrans+sideLength/2);
+				color = Color.MAGENTA;
+				nextBlocksRect[n][0].setFill(color);
+				nextBlocksRect[n][1].setFill(color);
+				nextBlocksRect[n][2].setFill(color);
+				nextBlocksRect[n][5].setFill(color);
+				break;
+			case J: //J
+				for(int i = 0; i<8; i++)
+					nextBlocksRect[n][i].setTranslateX(defaultTrans+sideLength/2);
+				color = Color.DODGERBLUE;
+				nextBlocksRect[n][0].setFill(color);
+				nextBlocksRect[n][1].setFill(color);
+				nextBlocksRect[n][2].setFill(color);
+				nextBlocksRect[n][6].setFill(color);
+				break;
+			case L: //L
+				for(int i = 0; i<8; i++)
+					nextBlocksRect[n][i].setTranslateX(defaultTrans+sideLength/2);
+				color = Color.ORANGE;
+				nextBlocksRect[n][0].setFill(color);
+				nextBlocksRect[n][1].setFill(color);
+				nextBlocksRect[n][2].setFill(color);
+				nextBlocksRect[n][4].setFill(color);
+				break;
+			case S: //S
+				for(int i = 0; i<8; i++)
+					nextBlocksRect[n][i].setTranslateX(defaultTrans+sideLength/2);
+				color = Color.LIME;
+				nextBlocksRect[n][4].setFill(color);
+				nextBlocksRect[n][5].setFill(color);
+				nextBlocksRect[n][1].setFill(color);
+				nextBlocksRect[n][2].setFill(color);
+				break;
+			case Z: //Z
+				for(int i = 0; i<8; i++)
+					nextBlocksRect[n][i].setTranslateX(defaultTrans+sideLength/2);
+				color = Color.RED;
+				nextBlocksRect[n][0].setFill(color);
+				nextBlocksRect[n][1].setFill(color);
+				nextBlocksRect[n][5].setFill(color);
+				nextBlocksRect[n][6].setFill(color);
+				break;
+			}
+		}
 	}
 	
 	/**
