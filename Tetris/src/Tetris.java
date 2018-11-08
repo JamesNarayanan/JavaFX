@@ -272,49 +272,63 @@ public class Tetris extends Application {
 			nextBlocks.getChildren().addAll(nextBlocksRect[i]);
 		
 		AnchorPane sidePanel = new AnchorPane(nextBlocks);
-		sidePanel.setPrefSize(sideLength*8, vbox.getHeight());
+		sidePanel.setPrefSize(sideLength*8, top.getPrefHeight()+rectPane.getPrefHeight());
 		sidePanel.setBackground(new Background(new BackgroundFill(rectBg, null, null)));
 		AnchorPane.setTopAnchor(nextBlocks, top.getPrefHeight());
 		AnchorPane.setLeftAnchor(nextBlocks, (sidePanel.getPrefWidth()-nextBlocks.getPrefWidth())/2);
 		
 		HBox hbox = new HBox(vbox, sidePanel);
 		
-		Pane startCover = new Pane();
-		startCover.setPrefSize(hbox.getPrefWidth(), hbox.getPrefHeight());
+		Pane startCover = new Pane(new Text("Hey"));
+		startCover.setPrefSize(
+				top.getPrefWidth()+sidePanel.getPrefWidth(),
+				sidePanel.getPrefHeight());
 		startCover.setBackground(new Background(new BackgroundFill(rectBg, null, null)));
 		Scene startScene = new Scene(startCover);
 		
-		Scene scene = new Scene(hbox);
-		scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
+		
+		timer.schedule(new TimerTask() {
 			@Override
-			public void handle(KeyEvent event) {
-				//System.out.println(event.getCode());
-				if(!wait) {
-					if(event.getCode()==KeyCode.DOWN) {
-						if(canMoveBlock(Direction.DOWN))
-							moveBlock(Direction.DOWN, 1);
-						else
-							newBlock();
-					}
-					else if(event.getCode()==KeyCode.UP) {
-						rotateBlock();
-					}
-					else if(event.getCode()==KeyCode.LEFT) {
-						if(canMoveBlock(Direction.LEFT))
-							moveBlock(Direction.LEFT, 0);
-					}
-					else if(event.getCode()==KeyCode.RIGHT) {
-						if(canMoveBlock(Direction.RIGHT))
-							moveBlock(Direction.RIGHT, 0);
-					}
-					else if(event.getCode()==KeyCode.SPACE) {
-						while(canMoveBlock(Direction.DOWN))
-							moveBlock(Direction.DOWN, 2);
-					}
-				}
+			public void run() {
+				Platform.runLater(new Runnable() {
+					@Override
+					public void run() {
+						Scene scene = new Scene(hbox);
+						scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
+							@Override
+							public void handle(KeyEvent event) {
+								//System.out.println(event.getCode());
+								if(!wait) {
+									if(event.getCode()==KeyCode.DOWN) {
+										if(canMoveBlock(Direction.DOWN))
+											moveBlock(Direction.DOWN, 1);
+										else
+											newBlock();
+									}
+									else if(event.getCode()==KeyCode.UP) {
+										rotateBlock();
+									}
+									else if(event.getCode()==KeyCode.LEFT) {
+										if(canMoveBlock(Direction.LEFT))
+											moveBlock(Direction.LEFT, 0);
+									}
+									else if(event.getCode()==KeyCode.RIGHT) {
+										if(canMoveBlock(Direction.RIGHT))
+											moveBlock(Direction.RIGHT, 0);
+									}
+									else if(event.getCode()==KeyCode.SPACE) {
+										while(canMoveBlock(Direction.DOWN))
+											moveBlock(Direction.DOWN, 2);
+									}
+								}
+							}
+						});
+						mainStage.setScene(scene);
+					} 
+				});
 			}
-		});
-		return scene;
+		}, 3000);
+		return startScene;
 	}
 	
 	/**
