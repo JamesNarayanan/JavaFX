@@ -61,8 +61,10 @@ public class Tetris extends Application {
 	
 	private int score;
 	private Text scoreText;
+	private Pane scoreHighlightBox;
 	private int lines;
 	private Text lineText;
+	private Pane lineHighlightBox;
 	private Rectangle[] rect;
 	private Integer[] rows;
 	private Integer[] cols;
@@ -253,8 +255,8 @@ public class Tetris extends Application {
 		AnchorPane.setLeftAnchor(scoreBox, (leftSidePanel.getPrefWidth()-scoreBox.getPrefWidth())/2);
 		leftSidePanel.getChildren().add(scoreBox);
 		
-		Pane lineHighlightBox = new Pane();
-		lineHighlightBox.setBackground(new Background(new BackgroundFill(Color.rgb(25, 25, 25), new CornerRadii(5), null)));
+		lineHighlightBox = new Pane();
+		lineHighlightBox.setBackground(new Background(new BackgroundFill(mainColor, new CornerRadii(5), null)));
 		lineHighlightBox.setPrefSize(sideLength, sideLength*1.1);
 		lineHighlightBox.setTranslateY(sideLength*1.6);
 		lineHighlightBox.setTranslateX(scoreBox.getPrefWidth()/2-lineHighlightBox.getPrefWidth()/2);
@@ -269,7 +271,7 @@ public class Tetris extends Application {
 		lineText.setY(sideLength/2);
 		scoreBox.getChildren().add(lineText);
 		
-		Pane scoreHighlightBox = new Pane();
+		scoreHighlightBox = new Pane();
 		scoreHighlightBox.setBackground(lineHighlightBox.getBackground());
 		scoreHighlightBox.setPrefSize(sideLength, sideLength*1.1);
 		scoreHighlightBox.setTranslateY(lineHighlightBox.getTranslateY() + sideLength*2.5);
@@ -628,6 +630,10 @@ public class Tetris extends Application {
 			}
 				score+=multiplier;
 				scoreText.setText("Score:\n" + score);
+				double oldW = scoreHighlightBox.getPrefWidth();
+				scoreHighlightBox.setPrefWidth(sideLength + .5*sideLength*((score+"").length()-1));
+				double newW = scoreHighlightBox.getPrefWidth();
+				scoreHighlightBox.setTranslateX(scoreHighlightBox.getTranslateX()+(oldW-newW)/2);
 		}
 		else if(dir==Direction.LEFT) {
 			ArrayList<Integer> moveList = new ArrayList<>();
@@ -875,6 +881,10 @@ public class Tetris extends Application {
 				}
 				lines++;
 				lineText.setText("Lines:\n" + lines);
+				double oldW = lineHighlightBox.getPrefWidth();
+				lineHighlightBox.setPrefWidth(sideLength + .5*sideLength*((lines+"").length()-1));
+				double newW = lineHighlightBox.getPrefWidth();
+				lineHighlightBox.setTranslateX(lineHighlightBox.getTranslateX()+(oldW-newW)/2);
 				linesRemoved++;
 			}
 		}
@@ -893,6 +903,10 @@ public class Tetris extends Application {
 			break;
 		}
 		scoreText.setText("Score:\n" + score);
+		double oldW = scoreHighlightBox.getPrefWidth();
+		scoreHighlightBox.setPrefWidth(sideLength + .5*sideLength*((score+"").length()-1));
+		double newW = scoreHighlightBox.getPrefWidth();
+		scoreHighlightBox.setTranslateX(scoreHighlightBox.getTranslateX()+(oldW-newW)/2);
 	}
 
 	private Scene loseScene() {
