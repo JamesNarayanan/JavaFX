@@ -253,6 +253,13 @@ public class Tetris extends Application {
 		AnchorPane.setLeftAnchor(scoreBox, (leftSidePanel.getPrefWidth()-scoreBox.getPrefWidth())/2);
 		leftSidePanel.getChildren().add(scoreBox);
 		
+		Pane lineHighlightBox = new Pane();
+		lineHighlightBox.setBackground(new Background(new BackgroundFill(Color.rgb(25, 25, 25), new CornerRadii(5), null)));
+		lineHighlightBox.setPrefSize(sideLength, sideLength*1.1);
+		lineHighlightBox.setTranslateY(sideLength*1.6);
+		lineHighlightBox.setTranslateX(scoreBox.getPrefWidth()/2-lineHighlightBox.getPrefWidth()/2);
+		scoreBox.getChildren().add(lineHighlightBox);
+		
 		lineText = new Text("Lines:\n" + lines);
 		lineText.setFill(Color.WHITE);
 		lineText.setTextOrigin(VPos.TOP);
@@ -262,12 +269,12 @@ public class Tetris extends Application {
 		lineText.setY(sideLength/2);
 		scoreBox.getChildren().add(lineText);
 		
-		Pane lineHighlightBox = new Pane();
-		lineHighlightBox.setBackground(new Background(new BackgroundFill(Color.rgb(15, 15, 15), new CornerRadii(5), null)));
-		lineHighlightBox.setPrefSize(sideLength, sideLength*1.2);
-		lineHighlightBox.setTranslateY(sideLength*1.7);
-		lineHighlightBox.setTranslateX(scoreBox.getPrefWidth()/2-lineHighlightBox.getPrefWidth()/2);
-		scoreBox.getChildren().add(lineHighlightBox);
+		Pane scoreHighlightBox = new Pane();
+		scoreHighlightBox.setBackground(lineHighlightBox.getBackground());
+		scoreHighlightBox.setPrefSize(sideLength, sideLength*1.1);
+		scoreHighlightBox.setTranslateY(lineHighlightBox.getTranslateY() + sideLength*2.5);
+		scoreHighlightBox.setTranslateX(scoreBox.getPrefWidth()/2-scoreHighlightBox.getPrefWidth()/2);
+		scoreBox.getChildren().add(scoreHighlightBox);
 		
 		scoreText = new Text("Score:\n" + score);
 		scoreText.setFill(Color.WHITE);
@@ -275,7 +282,7 @@ public class Tetris extends Application {
 		scoreText.setTextAlignment(TextAlignment.CENTER);
 		scoreText.setWrappingWidth(scoreBox.getPrefWidth());
 		scoreText.setStyle("-fx-font: " + fontSize + " " + font + ";"); //Uses CSS
-		scoreText.setY(lineText.getY()*6);
+		scoreText.setY(lineText.getY() + sideLength*2.5);
 		scoreBox.getChildren().add(scoreText);
 		
 		Text highScoreText = new Text();
