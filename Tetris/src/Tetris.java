@@ -152,35 +152,7 @@ public class Tetris extends Application {
 	 * @return The main {@link Scene}
 	 */
 	private Scene mainScene() {
-		lineText = new Text("Lines: " + lines);
-		lineText.setFill(mainColor);
-		lineText.setTextOrigin(VPos.TOP);
 		int fontSize = (int) (sideLength/1.1);
-		lineText.setStyle("-fx-font: " + fontSize + " " + font + ";"); //Uses CSS
-		lineText.setX(sideLength/5);
-		lineText.setY(lineText.getX());
-		
-		scoreText = new Text("Score: " + score);
-		scoreText.setFill(mainColor);
-		scoreText.setTextOrigin(VPos.TOP);
-		scoreText.setStyle("-fx-font: " + fontSize + " " + font + ";"); //Uses CSS
-		scoreText.setX(lineText.getX() + sideLength*4.5);
-		scoreText.setY(lineText.getY());
-		
-		Text highScoreText = new Text();
-		try {
-			highScoreText = new Text("High Score: " + highScores(false).get(0));
-		} catch (IOException e) {e.printStackTrace();}
-		highScoreText.setFill(mainColor);
-		highScoreText.setTextOrigin(VPos.TOP);
-		highScoreText.setStyle("-fx-font: " + fontSize + " " + font + ";"); //Uses CSS
-		highScoreText.setX(lineText.getX());
-		highScoreText.setY(lineText.getY() + sideLength);
-		
-		Pane top = new Pane(lineText, scoreText, highScoreText);
-		//Three lines in height
-		top.setPrefSize(sideLength*rowLength, sideLength*3); //Width, Height
-		top.setBackground(new Background(new BackgroundFill(rectBg, null, null)));
 		
 		int rowNum = 0;
 		int colNum = 0;
@@ -201,7 +173,6 @@ public class Tetris extends Application {
 			else
 				colNum++;
 		}
-		
 		
 		
 		timer = new Timer();
@@ -229,14 +200,11 @@ public class Tetris extends Application {
 		Pane rectPane = new Pane(rect);
 		rectPane.setPrefSize(sideLength*rowLength, sideLength*numRows); //Width, Height
 		
-		VBox vbox = new VBox(top, rectPane);
-		
-		
 		Text nextBlocksText = new Text("Next Blocks");
 		nextBlocksText.setTextAlignment(TextAlignment.CENTER);
 		nextBlocksText.setTextOrigin(VPos.TOP);
 		nextBlocksText.setStyle("-fx-font: " + fontSize/1.2 + " " + font + ";");
-		nextBlocksText.setFill(mainColor);
+		nextBlocksText.setFill(Color.WHITE);
 		nextBlocksText.setY(sideLength/5);
 		
 		Pane nextBlocks = new Pane(nextBlocksText);
@@ -274,16 +242,79 @@ public class Tetris extends Application {
 		for(int i = 0; i<nextBlocksRect.length; i++)
 			nextBlocks.getChildren().addAll(nextBlocksRect[i]);
 		
-		AnchorPane sidePanel = new AnchorPane(nextBlocks);
-		sidePanel.setPrefSize(sideLength*8, top.getPrefHeight()+rectPane.getPrefHeight());
-		sidePanel.setBackground(new Background(new BackgroundFill(rectBg, null, null)));
-		AnchorPane.setTopAnchor(nextBlocks, top.getPrefHeight());
-		AnchorPane.setLeftAnchor(nextBlocks, (sidePanel.getPrefWidth()-nextBlocks.getPrefWidth())/2);
 		
-		HBox hbox = new HBox(vbox, sidePanel);
+		AnchorPane leftSidePanel = new AnchorPane();
+		leftSidePanel.setPrefSize(sideLength*8, rectPane.getPrefHeight());
+		leftSidePanel.setBackground(new Background(new BackgroundFill(rectBg, null, null)));
 		
-		mainSceneWidth = top.getPrefWidth()+sidePanel.getPrefWidth();
-		mainSceneHeight = sidePanel.getPrefHeight();
+		Pane scoreBox = new Pane();
+		scoreBox.setBorder(nextBlocks.getBorder());
+		scoreBox.setPrefSize(leftSidePanel.getPrefWidth()*.9, sideLength*6);
+		AnchorPane.setLeftAnchor(scoreBox, (leftSidePanel.getPrefWidth()-scoreBox.getPrefWidth())/2);
+		leftSidePanel.getChildren().add(scoreBox);
+		
+		lineText = new Text("Lines:\n" + lines);
+		lineText.setFill(Color.WHITE);
+		lineText.setTextOrigin(VPos.TOP);
+		lineText.setTextAlignment(TextAlignment.CENTER);
+		lineText.setWrappingWidth(scoreBox.getPrefWidth());
+		lineText.setStyle("-fx-font: " + fontSize + " " + font + ";"); //Uses CSS
+		lineText.setY(sideLength/2);
+		scoreBox.getChildren().add(lineText);
+		
+		Pane lineHighlightBox = new Pane();
+		lineHighlightBox.setBackground(new Background(new BackgroundFill(Color.rgb(15, 15, 15), new CornerRadii(5), null)));
+		lineHighlightBox.setPrefSize(sideLength, sideLength*1.2);
+		lineHighlightBox.setTranslateY(sideLength*1.7);
+		lineHighlightBox.setTranslateX(scoreBox.getPrefWidth()/2-lineHighlightBox.getPrefWidth()/2);
+		scoreBox.getChildren().add(lineHighlightBox);
+		
+		scoreText = new Text("Score:\n" + score);
+		scoreText.setFill(Color.WHITE);
+		scoreText.setTextOrigin(VPos.TOP);
+		scoreText.setTextAlignment(TextAlignment.CENTER);
+		scoreText.setWrappingWidth(scoreBox.getPrefWidth());
+		scoreText.setStyle("-fx-font: " + fontSize + " " + font + ";"); //Uses CSS
+		scoreText.setY(lineText.getY()*6);
+		scoreBox.getChildren().add(scoreText);
+		
+		Text highScoreText = new Text();
+		try {
+			highScoreText = new Text("High Score:\n" + highScores(false).get(0));
+		} catch (IOException e) {e.printStackTrace();}
+		highScoreText.setFill(Color.WHITE);
+		highScoreText.setTextOrigin(VPos.TOP);
+		highScoreText.setTextAlignment(TextAlignment.CENTER);
+		highScoreText.setWrappingWidth(leftSidePanel.getPrefWidth());
+		highScoreText.setStyle("-fx-font: " + fontSize + " " + font + ";"); //Uses CSS
+		AnchorPane.setTopAnchor(highScoreText, scoreBox.getPrefHeight() + sideLength);
+		leftSidePanel.getChildren().add(highScoreText);
+		
+		
+		AnchorPane rightSidePanel = new AnchorPane(nextBlocks);
+		rightSidePanel.setPrefSize(sideLength*8, rectPane.getPrefHeight());
+		rightSidePanel.setBackground(new Background(new BackgroundFill(rectBg, null, null)));
+		AnchorPane.setLeftAnchor(nextBlocks, (rightSidePanel.getPrefWidth()-nextBlocks.getPrefWidth())/2);
+		
+		
+		HBox hbox = new HBox(leftSidePanel, rectPane, rightSidePanel);
+		
+		
+		Text tetrisText = new Text("T    E    T    R    I    S");
+		tetrisText.setTextOrigin(VPos.TOP);
+		tetrisText.setTextAlignment(TextAlignment.CENTER);
+		tetrisText.setStyle("-fx-font: " + sideLength*3 + " Impact;");
+		tetrisText.setY(-sideLength/3);
+		tetrisText.setFill(mainColor);
+		
+		Pane top = new Pane(tetrisText);
+		top.setPrefSize(leftSidePanel.getPrefWidth()+rectPane.getPrefWidth()+rightSidePanel.getPrefWidth(), sideLength*3);
+		tetrisText.setWrappingWidth(top.getPrefWidth());
+		top.setBackground(new Background(new BackgroundFill(rectBg, null, null)));
+		VBox vbox = new VBox(top, hbox);
+		
+		mainSceneWidth = leftSidePanel.getPrefWidth()+rectPane.getPrefWidth()+rightSidePanel.getPrefWidth();
+		mainSceneHeight = top.getPrefHeight()+rectPane.getPrefHeight();
 		Pane startCover = new Pane();
 		startCover.setPrefSize(mainSceneWidth, mainSceneHeight);
 		startCover.setBackground(new Background(new BackgroundFill(rectBg, null, null)));
@@ -323,7 +354,7 @@ public class Tetris extends Application {
 				Platform.runLater(new Runnable() {
 					@Override
 					public void run() {
-						Scene scene = new Scene(hbox);
+						Scene scene = new Scene(vbox);
 						scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
 							@Override
 							public void handle(KeyEvent event) {
@@ -589,7 +620,7 @@ public class Tetris extends Application {
 				rows[i]++;
 			}
 				score+=multiplier;
-				scoreText.setText("Score: " + score);
+				scoreText.setText("Score:\n" + score);
 		}
 		else if(dir==Direction.LEFT) {
 			ArrayList<Integer> moveList = new ArrayList<>();
@@ -836,7 +867,7 @@ public class Tetris extends Application {
 					}
 				}
 				lines++;
-				lineText.setText("Lines: " + lines);
+				lineText.setText("Lines:\n" + lines);
 				linesRemoved++;
 			}
 		}
@@ -854,7 +885,7 @@ public class Tetris extends Application {
 			score+=1200;
 			break;
 		}
-		scoreText.setText("Score: " + score);
+		scoreText.setText("Score:\n" + score);
 	}
 
 	private Scene loseScene() {
