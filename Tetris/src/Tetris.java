@@ -916,13 +916,14 @@ public class Tetris extends Application {
 		
 		Pane loss = new Pane();
 		loss.setPrefSize(panel.getPrefWidth(), 2*panel.getPrefHeight()/3);
-		Text lossText = new Text("You lost with a score of " + score + "\n\n" + highScoreEndText);
+		Text lossText = new Text("You lost with a score of " + score + "\n\n" +
+				((highScoreEndText!=null) ? highScoreEndText : ""));
 		lossText.setFill(mainColor);
 		lossText.setStyle("-fx-font: " + sideLength*1.5 + " " + font + ";");
 		lossText.setTextAlignment(TextAlignment.CENTER);
 		lossText.setWrappingWidth(loss.getPrefWidth()*.9);
 		lossText.setX((loss.getPrefWidth()-lossText.getWrappingWidth())/2);
-		lossText.setY(loss.getPrefHeight()/3);
+		lossText.setY(2*loss.getPrefHeight()/5);
 		loss.getChildren().add(lossText);
 		panel.getChildren().add(loss);
 		
