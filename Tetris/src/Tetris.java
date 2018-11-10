@@ -224,7 +224,7 @@ public class Tetris extends Application {
 					}
 				});
 			}
-		}, 3000, 100); //Starts after 3 seconds, moves every 1
+		}, 3000, 1000); //Starts after 3 seconds, moves every 1
 		
 		Pane rectPane = new Pane(rect);
 		rectPane.setPrefSize(sideLength*rowLength, sideLength*numRows); //Width, Height
