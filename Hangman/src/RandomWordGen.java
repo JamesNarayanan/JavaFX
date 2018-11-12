@@ -12,7 +12,7 @@ public class RandomWordGen {
 			words.add(scan.nextLine());
 		}
 		for(int i = 0; i<10; i++) {
-			System.out.println(words.get((int) (Math.random()*words.size())).toLowerCase());
+			System.out.println(words.remove((int) (Math.random()*words.size())).toLowerCase());
 		}
 		scan.close();
 	}
