@@ -731,7 +731,7 @@ public class Tetris extends Application {
 		int blockNum = 0;
 		switch(blockType) {
 		case STRAIGHT:
-			blockNum = 0;
+			blockNum = 3;
 			break;
 		case SQUARE:
 			blockNum = 1;
