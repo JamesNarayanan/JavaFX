@@ -172,7 +172,7 @@ public class Tetris extends Application {
 			rect[i].setY(sideLength*rowNum);
 			
 			rect[i].setFill(rectBg);
-			rect[i].setStroke((i<rowLength) ? Color.WHITE : Color.GREY);
+			rect[i].setStroke(Color.GREY);
 			
 			if(colNum==rowLength-1) { //If the row has been filled
 				colNum=0;
@@ -207,6 +207,11 @@ public class Tetris extends Application {
 		
 		Pane rectPane = new Pane(rect);
 		rectPane.setPrefSize(sideLength*rowLength, sideLength*numRows); //Width, Height
+		
+		Rectangle theBar = new Rectangle(rowLength*sideLength, 2);
+		theBar.setY(sideLength);
+		theBar.setFill(mainColor);
+		rectPane.getChildren().add(theBar);
 		
 		Text nextBlocksText = new Text("Next Blocks");
 		nextBlocksText.setTextAlignment(TextAlignment.CENTER);
