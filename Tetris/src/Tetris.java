@@ -65,12 +65,16 @@ public class Tetris extends Application {
 	private int lines;
 	private Text lineText;
 	private Pane lineHighlightBox;
+	private int level;
+	private Text levelText;
+	private Pane levelHighlightBox;
 	private Rectangle[] rect;
 	private Integer[] rows;
 	private Integer[] cols;
 	private boolean[] placed;
 	private Timer timer;
 	private boolean wait;
+	private int scoreMultiplier;
 	private enum Direction {LEFT, RIGHT, DOWN}
 	private enum BlockType {STRAIGHT, SQUARE, T, J, L, S, Z}
 	private BlockType blockType;
@@ -92,12 +96,14 @@ public class Tetris extends Application {
 	public void init() {
 		score = 0;
 		lines = 0;
+		level = 0;
 		rect = new Rectangle[rowLength*numRows];
 		rows = new Integer[4];
 		cols = new Integer[4];
 		placed = new boolean[rect.length];
 		timer = new Timer();
 		wait = true;
+		scoreMultiplier = 1;
 		nextBlocks = new BlockType[3]; //Cannot be less than 1
 		nextBlocksRect = new Rectangle[nextBlocks.length][8];
 	}
@@ -251,14 +257,30 @@ public class Tetris extends Application {
 		
 		Pane scoreBox = new Pane();
 		scoreBox.setBorder(nextBlocks.getBorder());
-		scoreBox.setPrefSize(leftSidePanel.getPrefWidth()*.9, sideLength*6);
+		scoreBox.setPrefSize(leftSidePanel.getPrefWidth()*.9, sideLength*8);
 		AnchorPane.setLeftAnchor(scoreBox, (leftSidePanel.getPrefWidth()-scoreBox.getPrefWidth())/2);
 		leftSidePanel.getChildren().add(scoreBox);
 		
+		levelHighlightBox = new Pane();
+		levelHighlightBox.setBackground(new Background(new BackgroundFill(mainColor, new CornerRadii(5), null)));
+		levelHighlightBox.setPrefSize(sideLength, sideLength*1.1);
+		levelHighlightBox.setTranslateY(sideLength*1.6);
+		levelHighlightBox.setTranslateX(scoreBox.getPrefWidth()/2-levelHighlightBox.getPrefWidth()/2);
+		scoreBox.getChildren().add(levelHighlightBox);
+		
+		levelText = new Text("Level:\n" + level);
+		levelText.setFill(Color.WHITE);
+		levelText.setTextOrigin(VPos.TOP);
+		levelText.setTextAlignment(TextAlignment.CENTER);
+		levelText.setWrappingWidth(scoreBox.getPrefWidth());
+		levelText.setStyle("-fx-font: " + fontSize + " " + font + ";"); //Uses CSS
+		levelText.setY(sideLength/2);
+		scoreBox.getChildren().add(levelText);
+		
 		lineHighlightBox = new Pane();
-		lineHighlightBox.setBackground(new Background(new BackgroundFill(mainColor, new CornerRadii(5), null)));
+		lineHighlightBox.setBackground(levelHighlightBox.getBackground());
 		lineHighlightBox.setPrefSize(sideLength, sideLength*1.1);
-		lineHighlightBox.setTranslateY(sideLength*1.6);
+		lineHighlightBox.setTranslateY(levelHighlightBox.getTranslateY() + sideLength*2.5);
 		lineHighlightBox.setTranslateX(scoreBox.getPrefWidth()/2-lineHighlightBox.getPrefWidth()/2);
 		scoreBox.getChildren().add(lineHighlightBox);
 		
@@ -268,7 +290,7 @@ public class Tetris extends Application {
 		lineText.setTextAlignment(TextAlignment.CENTER);
 		lineText.setWrappingWidth(scoreBox.getPrefWidth());
 		lineText.setStyle("-fx-font: " + fontSize + " " + font + ";"); //Uses CSS
-		lineText.setY(sideLength/2);
+		lineText.setY(levelText.getY() + sideLength*2.5);
 		scoreBox.getChildren().add(lineText);
 		
 		scoreHighlightBox = new Pane();
@@ -628,7 +650,7 @@ public class Tetris extends Application {
 				moveList.add(cols[i] + (rows[i]+1)*rowLength);
 				rows[i]++;
 			}
-				score+=multiplier;
+				score+=multiplier*scoreMultiplier;
 				scoreText.setText("Score:\n" + score);
 				double oldW = scoreHighlightBox.getPrefWidth();
 				scoreHighlightBox.setPrefWidth(sideLength + .5*sideLength*((score+"").length()-1));
@@ -881,32 +903,66 @@ public class Tetris extends Application {
 				}
 				lines++;
 				lineText.setText("Lines:\n" + lines);
-				double oldW = lineHighlightBox.getPrefWidth();
+				double oldLineW = lineHighlightBox.getPrefWidth();
 				lineHighlightBox.setPrefWidth(sideLength + .5*sideLength*((lines+"").length()-1));
-				double newW = lineHighlightBox.getPrefWidth();
-				lineHighlightBox.setTranslateX(lineHighlightBox.getTranslateX()+(oldW-newW)/2);
+				double newLineW = lineHighlightBox.getPrefWidth();
+				lineHighlightBox.setTranslateX(lineHighlightBox.getTranslateX()+(oldLineW-newLineW)/2);
 				linesRemoved++;
+				
+				if(lines%(10*(level+1))==0) {
+					level++;
+					scoreMultiplier++;
+					levelText.setText("Level:\n" + level);
+					double oldLevelW = levelHighlightBox.getPrefWidth();
+					levelHighlightBox.setPrefWidth(sideLength + .5*sideLength*((level+"").length()-1));
+					double newLevelW = levelHighlightBox.getPrefWidth();
+					levelHighlightBox.setTranslateX(levelHighlightBox.getTranslateX()+(oldLevelW-newLevelW)/2);
+					
+					timer.cancel();
+					timer.purge();
+					timer = new Timer();
+					timer.scheduleAtFixedRate(new TimerTask() {
+						@Override
+						public void run() {
+							Platform.runLater(new Runnable() { //Allows scene switching
+								public void run() {
+									if(wait) {
+										newBlock();
+										wait=false;
+									}
+									else {
+										if(canMoveBlock(Direction.DOWN))
+											moveBlock(Direction.DOWN, 0); //Multiplier of 0 because it's not worth any points
+										else {
+											newBlock();
+										}
+									}
+								}
+							});
+						}
+					}, 0, (long) (1000/(.8+.4*level))); //Starts after 3 seconds, moves every 1
+				}
 			}
 		}
 		switch(linesRemoved) {
 		case 1:
-			score+=40;
+			score+=40*scoreMultiplier;
 			break;
 		case 2:
-			score+=100;
+			score+=100*scoreMultiplier;
 			break;
 		case 3:
-			score+=300;
+			score+=300*scoreMultiplier;
 			break;
 		case 4:
-			score+=1200;
+			score+=1200*scoreMultiplier;
 			break;
 		}
 		scoreText.setText("Score:\n" + score);
-		double oldW = scoreHighlightBox.getPrefWidth();
+		double oldScoreW = scoreHighlightBox.getPrefWidth();
 		scoreHighlightBox.setPrefWidth(sideLength + .5*sideLength*((score+"").length()-1));
-		double newW = scoreHighlightBox.getPrefWidth();
-		scoreHighlightBox.setTranslateX(scoreHighlightBox.getTranslateX()+(oldW-newW)/2);
+		double newScoreW = scoreHighlightBox.getPrefWidth();
+		scoreHighlightBox.setTranslateX(scoreHighlightBox.getTranslateX()+(oldScoreW-newScoreW)/2);
 	}
 
 	private Scene loseScene() {
