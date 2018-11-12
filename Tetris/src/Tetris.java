@@ -264,7 +264,7 @@ public class Tetris extends Application {
 		levelHighlightBox = new Pane();
 		levelHighlightBox.setBackground(new Background(new BackgroundFill(mainColor, new CornerRadii(5), null)));
 		levelHighlightBox.setPrefSize(sideLength, sideLength*1.1);
-		levelHighlightBox.setTranslateY(sideLength*1.6);
+		levelHighlightBox.setTranslateY(sideLength*1.3);
 		levelHighlightBox.setTranslateX(scoreBox.getPrefWidth()/2-levelHighlightBox.getPrefWidth()/2);
 		scoreBox.getChildren().add(levelHighlightBox);
 		
@@ -274,7 +274,7 @@ public class Tetris extends Application {
 		levelText.setTextAlignment(TextAlignment.CENTER);
 		levelText.setWrappingWidth(scoreBox.getPrefWidth());
 		levelText.setStyle("-fx-font: " + fontSize + " " + font + ";"); //Uses CSS
-		levelText.setY(sideLength/2);
+		levelText.setY(sideLength/4);
 		scoreBox.getChildren().add(levelText);
 		
 		lineHighlightBox = new Pane();
@@ -556,6 +556,7 @@ public class Tetris extends Application {
 		//System.out.println(Arrays.toString(nextBlocks));
 		
 		fixPlaced();
+		project();
 	}
 	
 	private void displayNextBlocks() {
@@ -640,6 +641,7 @@ public class Tetris extends Application {
 	 * @param numPoints The amount of points scored for every move down
 	 */
 	private void moveBlock(Direction dir, int numPoints) {
+		eraseProjection();
 		if(dir==Direction.DOWN) {
 			ArrayList<Integer> moveList = new ArrayList<>();
 			for(int i = 0; i<4; i++) {
@@ -679,6 +681,7 @@ public class Tetris extends Application {
 				cols[i]++;
 			}
 		}
+		project();
 	}
 	
 	/**
@@ -755,6 +758,7 @@ public class Tetris extends Application {
 		pivotPoint[0] = rows[blockNum]; pivotPoint[1] = cols[blockNum];
 		if(!canRotate(blockNum, pivotPoint))
 			return;
+		eraseProjection();
 		ArrayList<Integer> moveList = new ArrayList<>();
 		for(int i = 0; i<4; i++) {
 			if(i!=blockNum) {
@@ -773,6 +777,7 @@ public class Tetris extends Application {
 				moveList.add(rows[i]*rowLength + cols[i]);
 			}
 		}
+		project();
 	}
 	
 	/**
@@ -795,6 +800,53 @@ public class Tetris extends Application {
 			}
 		}
 		return true;
+	}
+	
+	/**
+	 * Shows a projection of where the block will land on the bottom
+	 */
+	private void project() {
+		for(int i = 0; i<rowLength; i++) //Prevents errors later
+			if(placed[i])
+				return;
+		
+		Color color = (Color) rect[cols[0] + rows[0]*rowLength].getFill();
+		int[] tempRows = new int[rows.length];
+		for(int i = 0; i<tempRows.length; i++) //Cannot directly copy or I would get an alias
+			tempRows[i] = rows[i];
+		boolean done = false;
+		while(!done) {
+			for(int i = 0; i<tempRows.length; i++) {
+				if(tempRows[i]<numRows) { //Two seperate ifs prevents outOfBounds exception in placed[]
+					if(placed[cols[i] + tempRows[i]*rowLength])
+						done = true;
+				}
+				else
+					done = true;
+			}
+			if(!done) {
+				for(int i = 0; i<tempRows.length; i++)
+					tempRows[i]++;
+			}
+		}
+		for(int i = 0; i<tempRows.length; i++) {
+			if(rect[cols[i] + --tempRows[i]*rowLength].getFill()==rectBg) {
+				rect[cols[i] + tempRows[i]*rowLength].setFill(color);
+				rect[cols[i] + tempRows[i]*rowLength].setOpacity(.4);
+			}
+		}
+	}
+	
+	/**
+	 * Erases current projection
+	 */
+	public void eraseProjection() {
+		for(int i = 0; i<rect.length; i++) {
+			if(rect[i].getOpacity()!=1) {
+				rect[i].setFill(rectBg);
+				rect[i].setOpacity(1);
+			}
+		}
 	}
 	
 	/**
@@ -870,11 +922,11 @@ public class Tetris extends Application {
 		boolean go = true;
 		for(int i = 0; i<placed.length; i++) {
 			for(int j = 0; j<4; j++) {
-				if(i==cols[j] + rows[j]*rowLength)
+				if(i == cols[j] + rows[j]*rowLength)
 					go = false;
 			}
 			if(go)
-				placed[i] = (rect[i].getFill()==rectBg) ? false : true;
+				placed[i] = rect[i].getFill()==rectBg || rect[i].getOpacity()!=1 ? false : true;
 			go = true;
 		}
 	}
@@ -940,7 +992,7 @@ public class Tetris extends Application {
 								}
 							});
 						}
-					}, 0, (long) (1000/(.8+.4*level))); //The number multiplying by level is the speed increase
+					}, 0, (long) (1000/(.8+.4*level))); //The number that is multiplied by level is the speed increase
 				}
 			}
 		}
