@@ -637,9 +637,9 @@ public class Tetris extends Application {
 	 * Will move the tetrimino in the desired direction
 	 * Assumes block can be moved in the desired direction
 	 * @param dir The direction to move the block in
-	 * @param multiplier The amount of points scored for every move down
+	 * @param numPoints The amount of points scored for every move down
 	 */
-	private void moveBlock(Direction dir, int multiplier) {
+	private void moveBlock(Direction dir, int numPoints) {
 		if(dir==Direction.DOWN) {
 			ArrayList<Integer> moveList = new ArrayList<>();
 			for(int i = 0; i<4; i++) {
@@ -650,7 +650,7 @@ public class Tetris extends Application {
 				moveList.add(cols[i] + (rows[i]+1)*rowLength);
 				rows[i]++;
 			}
-				score+=multiplier*scoreMultiplier;
+				score+=numPoints*scoreMultiplier;
 				scoreText.setText("Score:\n" + score);
 				double oldW = scoreHighlightBox.getPrefWidth();
 				scoreHighlightBox.setPrefWidth(sideLength + .5*sideLength*((score+"").length()-1));
@@ -940,7 +940,7 @@ public class Tetris extends Application {
 								}
 							});
 						}
-					}, 0, (long) (1000/(.8+.4*level))); //Starts after 3 seconds, moves every 1
+					}, 0, (long) (1000/(.8+.4*level))); //The number multiplying by level is the speed increase
 				}
 			}
 		}
