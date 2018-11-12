@@ -735,7 +735,7 @@ public class Tetris extends Application {
 			break;
 		case SQUARE:
 			blockNum = 1;
-			break;
+			return;
 		case T:
 			blockNum = 1;
 			break;
