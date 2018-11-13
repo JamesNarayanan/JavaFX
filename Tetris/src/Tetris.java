@@ -51,7 +51,7 @@ public class Tetris extends Application {
 	private final double screenHeight = Screen.getPrimary().getVisualBounds().getHeight();
 	
 	private static Stage mainStage;
-	private final String font = "Roboto";
+	private final String font = "Sans Serif";
 	
 	private final Color rectBg = Color.rgb(45,45,45);
 	
@@ -128,13 +128,13 @@ public class Tetris extends Application {
 		Pane init = new Pane();
 		init.setBackground(new Background(new BackgroundFill(mainColor, null, null)));
 		init.setPrefSize(screenWidth, screenHeight);
-		EventHandler<Event> switchToMain = new EventHandler<Event>() {
+		EventHandler<Event> switchToControls = new EventHandler<Event>() {
 			@Override
 			public void handle(Event e) {
-				mainStage.setScene(mainScene());
+				mainStage.setScene(controlsScene());
 			}
 		};
-		init.setOnMouseClicked(switchToMain);
+		init.setOnMouseClicked(switchToControls);
 		
 		Text welcome = new Text("Welcome to Tetris!");
 		welcome.setWrappingWidth(screenWidth);
@@ -142,7 +142,7 @@ public class Tetris extends Application {
 		welcome.setFont(Font.font(font, screenWidth/15.0));
 		welcome.setY(screenHeight/2.2);
 		
-		Text directions = new Text("Press anything to play");
+		Text directions = new Text("Press anything to begin");
 		directions.setWrappingWidth(screenWidth);
 		directions.setTextAlignment(TextAlignment.CENTER);
 		directions.setFont(Font.font(welcome.getFont().getFamily(), welcome.getFont().getSize()/2.0));
@@ -150,9 +150,43 @@ public class Tetris extends Application {
 		
 		init.getChildren().addAll(welcome, directions);
 		Scene scene = new Scene(init);
+		scene.setOnKeyPressed(switchToControls);
+		return scene;
+	}
+	
+	private Scene controlsScene() {
+		Pane pane = new Pane();
+		pane.setBackground(new Background(new BackgroundFill(mainColor, null, null)));
+		pane.setPrefSize(screenWidth, screenHeight);
+		EventHandler<Event> switchToMain = new EventHandler<Event>() {
+			@Override
+			public void handle(Event e) {
+				mainStage.setScene(mainScene());
+			}
+		};
+		pane.setOnMouseClicked(switchToMain);
+		
+		Text title = new Text("Controls:");
+		title.setWrappingWidth(screenWidth);
+		title.setTextAlignment(TextAlignment.CENTER);
+		title.setFont(Font.font(font, screenWidth/15.0));
+		title.setY(screenHeight/4);
+		
+		Text directions = new Text("Press left and right arrows to move left and right\n"
+				+ "Press the down arrow to move down one block and earn a point\n"
+				+ "Press the space bar to move the tetrimino to the bottom and earn two points per block moved\n"
+				+ "Press the up arrow to rotate the tetrimino"
+				+ "\n\n\nPress anything to play!");
+		directions.setWrappingWidth(screenWidth*.9);
+		directions.setTextAlignment(TextAlignment.CENTER);
+		directions.setFont(Font.font(title.getFont().getFamily(), title.getFont().getSize()/2.5));
+		directions.setY(screenHeight/3);
+		directions.setX((screenWidth-directions.getWrappingWidth())/2);
+		
+		pane.getChildren().addAll(title, directions);
+		Scene scene = new Scene(pane);
 		scene.setOnKeyPressed(switchToMain);
 		return scene;
-		
 	}
 	
 	/**
@@ -195,7 +229,7 @@ public class Tetris extends Application {
 						}
 						else {
 							if(canMoveBlock(Direction.DOWN))
-								moveBlock(Direction.DOWN, 0); //Multiplier of 0 because it's not worth any points
+								moveBlock(Direction.DOWN, 0);
 							else {
 								newBlock();
 							}
@@ -216,7 +250,7 @@ public class Tetris extends Application {
 		Text nextBlocksText = new Text("Next Blocks");
 		nextBlocksText.setTextAlignment(TextAlignment.CENTER);
 		nextBlocksText.setTextOrigin(VPos.TOP);
-		nextBlocksText.setStyle("-fx-font: " + fontSize/1.2 + " " + font + ";");
+		nextBlocksText.setFont(Font.font(font, fontSize/1.2));
 		nextBlocksText.setFill(Color.WHITE);
 		nextBlocksText.setY(sideLength/5);
 		
@@ -278,7 +312,7 @@ public class Tetris extends Application {
 		levelText.setTextOrigin(VPos.TOP);
 		levelText.setTextAlignment(TextAlignment.CENTER);
 		levelText.setWrappingWidth(scoreBox.getPrefWidth());
-		levelText.setStyle("-fx-font: " + fontSize + " " + font + ";"); //Uses CSS
+		levelText.setFont(Font.font(font, fontSize)); //Uses CSS
 		levelText.setY(sideLength/4);
 		scoreBox.getChildren().add(levelText);
 		
@@ -294,7 +328,7 @@ public class Tetris extends Application {
 		lineText.setTextOrigin(VPos.TOP);
 		lineText.setTextAlignment(TextAlignment.CENTER);
 		lineText.setWrappingWidth(scoreBox.getPrefWidth());
-		lineText.setStyle("-fx-font: " + fontSize + " " + font + ";"); //Uses CSS
+		lineText.setFont(Font.font(font, fontSize)); //Uses CSS
 		lineText.setY(levelText.getY() + sideLength*2.5);
 		scoreBox.getChildren().add(lineText);
 		
@@ -310,7 +344,7 @@ public class Tetris extends Application {
 		scoreText.setTextOrigin(VPos.TOP);
 		scoreText.setTextAlignment(TextAlignment.CENTER);
 		scoreText.setWrappingWidth(scoreBox.getPrefWidth());
-		scoreText.setStyle("-fx-font: " + fontSize + " " + font + ";"); //Uses CSS
+		scoreText.setFont(Font.font(font, fontSize)); //Uses CSS
 		scoreText.setY(lineText.getY() + sideLength*2.5);
 		scoreBox.getChildren().add(scoreText);
 		
@@ -322,7 +356,7 @@ public class Tetris extends Application {
 		highScoreText.setTextOrigin(VPos.TOP);
 		highScoreText.setTextAlignment(TextAlignment.CENTER);
 		highScoreText.setWrappingWidth(leftSidePanel.getPrefWidth());
-		highScoreText.setStyle("-fx-font: " + fontSize + " " + font + ";"); //Uses CSS
+		highScoreText.setFont(Font.font(font, fontSize)); //Uses CSS
 		AnchorPane.setTopAnchor(highScoreText, scoreBox.getPrefHeight() + sideLength);
 		leftSidePanel.getChildren().add(highScoreText);
 		
@@ -339,7 +373,7 @@ public class Tetris extends Application {
 		Text tetrisText = new Text("T    E    T    R    I    S");
 		tetrisText.setTextOrigin(VPos.TOP);
 		tetrisText.setTextAlignment(TextAlignment.CENTER);
-		tetrisText.setStyle("-fx-font: " + sideLength*3 + " Impact;");
+		tetrisText.setFont(Font.font("Impact", sideLength*3));
 		tetrisText.setY(-sideLength/3);
 		tetrisText.setFill(mainColor);
 		
@@ -374,7 +408,7 @@ public class Tetris extends Application {
 							countdownText.setTextAlignment(TextAlignment.CENTER);
 							countdownText.setWrappingWidth(startCover.getPrefWidth());
 							countdownText.setY(startCover.getPrefHeight()/2);
-							countdownText.setStyle("-fx-font: " + fontSize*5 + " " + font + ";");
+							countdownText.setFont(Font.font(font, fontSize*5));
 							countdownText.setFill(mainColor);
 							first = false;
 						}
@@ -1032,11 +1066,11 @@ public class Tetris extends Application {
 		Text lossText = new Text("You lost with a score of " + score + "\n\n" +
 				((highScoreEndText!=null) ? highScoreEndText : ""));
 		lossText.setFill(mainColor);
-		lossText.setStyle("-fx-font: " + sideLength*1.5 + " " + font + ";");
+		lossText.setFont(Font.font(font, sideLength*1.8));
 		lossText.setTextAlignment(TextAlignment.CENTER);
 		lossText.setWrappingWidth(loss.getPrefWidth()*.9);
 		lossText.setX((loss.getPrefWidth()-lossText.getWrappingWidth())/2);
-		lossText.setY(2*loss.getPrefHeight()/5);
+		lossText.setY(2*loss.getPrefHeight()/7);
 		loss.getChildren().add(lossText);
 		panel.getChildren().add(loss);
 		
@@ -1065,7 +1099,7 @@ public class Tetris extends Application {
 		playAgain.setBackground(new Background(new BackgroundFill(mainColor, null, null)));
 		Text playAgainText = new Text("Click here to play again!");
 		playAgainText.setFill(Color.BLACK);
-		playAgainText.setStyle("-fx-font: " + sideLength + " " + font + ";");
+		playAgainText.setFont(Font.font(font, sideLength*1.5));
 		playAgainText.setTextAlignment(TextAlignment.CENTER);
 		playAgainText.setWrappingWidth(playAgain.getPrefWidth()*.9);
 		playAgainText.setX((playAgain.getPrefWidth()-playAgainText.getWrappingWidth())/2);
@@ -1106,7 +1140,7 @@ public class Tetris extends Application {
 		});
 		Text endText = new Text("Click here to end");
 		endText.setFill(Color.BLACK);
-		endText.setStyle("-fx-font: " + sideLength + " " + font + ";");
+		endText.setFont(Font.font(font, sideLength*1.5));
 		endText.setTextAlignment(TextAlignment.CENTER);
 		endText.setWrappingWidth(end.getPrefWidth()*.9);
 		endText.setX((end.getPrefWidth()-endText.getWrappingWidth())/2);
