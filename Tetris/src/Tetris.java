@@ -879,7 +879,7 @@ public class Tetris extends Application {
 	/**
 	 * Erases current projection
 	 */
-	public void eraseProjection() {
+	private void eraseProjection() {
 		for(int i = 0; i<rect.length; i++) {
 			if(rect[i].getOpacity()!=1) {
 				rect[i].setFill(rectBg);
