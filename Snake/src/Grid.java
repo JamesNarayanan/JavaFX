@@ -12,7 +12,7 @@ import javafx.stage.Screen;
 
 public class Grid {
 	private Pane grid;
-	private int[][] gridSpots;
+	private Spot[][] gridSpots;
 	private Snake snake;
 	private final int numRows, numCols;
 	private final double sideLength;
@@ -22,12 +22,13 @@ public class Grid {
 	public Grid() {
 		grid = new Pane();
 		numRows = 15; numCols = 20;
-		gridSpots = new int[numCols][numRows];
+		gridSpots = new Spot[numCols][numRows];
 		
 		double screenHeight = Screen.getPrimary().getVisualBounds().getHeight();
 		//double screenWidth = Screen.getPrimary().getVisualBounds().getWidth();
 		
 		sideLength = screenHeight/25.0;
+		grid.setPrefSize(numCols*sideLength, numRows*sideLength);
 		for(int row = 0; row<numRows; row++) {
 			for(int col = 0; col<numCols; col++) {
 				Rectangle r = new Rectangle(sideLength, sideLength);
@@ -38,7 +39,7 @@ public class Grid {
 				r.setStroke(Color.BLACK);
 				r.setStrokeWidth(1.5);*/
 				grid.getChildren().add(r);
-				gridSpots[col][row] = 0;
+				gridSpots[col][row] = Spot.EMPTY;
 			}
 		}
 		
@@ -95,8 +96,11 @@ public class Grid {
 		timer.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
-				snake.move();
+				if(snake.canMove())
+					snake.move();
+				else
+					System.out.println("Lose");
 			}
-		}, 0, 500);
+		}, 0, 300);
 	}
 }
