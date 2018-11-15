@@ -28,8 +28,6 @@ public class SnakeGame extends Application {
 	
 	private Scene mainScene() {
 		Grid grid = new Grid();
-		grid.newSnake();
-		grid.startTimer();
 		
 		Scene scene = new Scene(grid.getGrids());
 		scene.setOnKeyPressed(new EventHandler<KeyEvent>() {

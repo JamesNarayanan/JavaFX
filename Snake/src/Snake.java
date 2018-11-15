@@ -15,19 +15,23 @@ public class Snake {
 	private Rectangle food;
 	private ArrayList<ArrayList<Object>> turnPoints;
 	private int length;
+	private int score;
 	private ArrayList<Direction> directions;
+	private boolean alreadyTurned;
 	
 	public Snake(Spot[][] gridSpots, int[] head, Pane grid, double sideLength) {
 		this.gridSpots = gridSpots;
 		this.grid = grid;
 		this.sideLength = sideLength;
-		this.length = 5;
+		this.length = 3;
+		this.score = 0;
 		this.snake = new ArrayList<>();
 		snake.add(head);
 		this.food = new Rectangle(sideLength, sideLength, Color.YELLOW);
 		this.directions = new ArrayList<>();
 		this.rects = new ArrayList<>();
 		this.turnPoints = new ArrayList<>();
+		this.alreadyTurned = false;
 		
 		makeSnake();
 	}
@@ -51,6 +55,8 @@ public class Snake {
 	}
 	
 	public boolean move() {
+		alreadyTurned = false;
+		
 		for(int i = 0; i<length; i++) {
 			for(int t = 0; t<turnPoints.size(); t++) {
 				if(Arrays.equals(snake.get(i), (int[]) turnPoints.get(t).get(0))) {
@@ -62,6 +68,7 @@ public class Snake {
 			
 			if(i==0 && !canMove())
 				return false;
+			
 			
 			switch(directions.get(i)) {
 			case UP:
@@ -123,6 +130,7 @@ public class Snake {
 		rects.add(r);
 		
 		length++;
+		score++;
 		newFood();
 	}
 	
@@ -138,14 +146,20 @@ public class Snake {
 	}
 	
 	public void turn(Direction dir) {
-		if(dir==null)
+		if(dir==null || alreadyTurned)
 			return;
+		
 		if(dir!=Direction.getOpposite(this.directions.get(0))) {
 			ArrayList<Object> spot = new ArrayList<>();
 			spot.add(new int[]{snake.get(0)[0], snake.get(0)[1]});
 			spot.add(dir);
 			turnPoints.add(spot);
+			alreadyTurned = true;
 		}
+	}
+	
+	public int getScore() {
+		return score;
 	}
 	
 }

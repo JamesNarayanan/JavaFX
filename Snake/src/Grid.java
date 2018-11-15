@@ -18,11 +18,13 @@ public class Grid {
 	private final double sideLength;
 	private Pane snakeGrid;
 	private Timer timer;
+	private final int timeInterval;
 	
 	public Grid() {
 		grid = new Pane();
 		numRows = 15; numCols = 20;
 		gridSpots = new Spot[numCols][numRows];
+		timeInterval = 200;
 		
 		double screenHeight = Screen.getPrimary().getVisualBounds().getHeight();
 		//double screenWidth = Screen.getPrimary().getVisualBounds().getWidth();
@@ -41,6 +43,8 @@ public class Grid {
 				gridSpots[col][row] = Spot.EMPTY;
 			}
 		}
+		newSnake();
+		startTimer();
 	}
 	
 	public Pane getBackgroundGrid() {
@@ -97,6 +101,6 @@ public class Grid {
 					}
 				});
 			}
-		}, 0, 200);
+		}, 0, timeInterval);
 	}
 }
