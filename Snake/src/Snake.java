@@ -103,11 +103,12 @@ public class Snake {
 	}
 	
 	public boolean canMove() {
-		//Have to add in hitting itself
+		int[] point = Direction.getPointInDirection(directions.get(0), snake.get(0));
 		if((snake.get(0)[0]==0 && directions.get(0)==Direction.LEFT)
 		|| (snake.get(0)[0]==gridSpots.length-1 && directions.get(0)==Direction.RIGHT)
 		|| (snake.get(0)[1]==0 && directions.get(0)==Direction.UP)
-		|| (snake.get(0)[1]==gridSpots[0].length-1 && directions.get(0)==Direction.DOWN))
+		|| (snake.get(0)[1]==gridSpots[0].length-1 && directions.get(0)==Direction.DOWN)
+		|| gridSpots[point[0]][point[1]]==Spot.SNAKE)
 			return false;
 		return true;
 	}
@@ -126,7 +127,6 @@ public class Snake {
 	}
 	
 	public void newFood() {
-		System.out.println("New Food");
 		int[] foodSpot = {(int) (Math.random()*gridSpots.length), (int) (Math.random()*gridSpots[0].length)};
 		while(gridSpots[foodSpot[0]][foodSpot[1]]!=Spot.EMPTY) {
 			foodSpot[0] = (int) (Math.random()*gridSpots.length);
@@ -138,6 +138,8 @@ public class Snake {
 	}
 	
 	public void turn(Direction dir) {
+		if(dir==null)
+			return;
 		if(dir!=Direction.getOpposite(this.directions.get(0))) {
 			ArrayList<Object> spot = new ArrayList<>();
 			spot.add(new int[]{snake.get(0)[0], snake.get(0)[1]});

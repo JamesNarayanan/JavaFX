@@ -6,12 +6,16 @@ public enum Direction {
 	@SuppressWarnings("incomplete-switch")
 	public static Direction keyCodeToDir(KeyCode code) {
 		switch(code) {
+		case W:
 		case UP:
 			return Direction.UP;
+		case S:
 		case DOWN:
 			return Direction.DOWN;
+		case A:
 		case LEFT:
 			return Direction.LEFT;
+		case D:
 		case RIGHT:
 			return Direction.RIGHT;
 		}
