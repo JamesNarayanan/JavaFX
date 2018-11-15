@@ -1,12 +1,12 @@
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Screen;
 
@@ -27,31 +27,19 @@ public class Grid {
 		double screenHeight = Screen.getPrimary().getVisualBounds().getHeight();
 		//double screenWidth = Screen.getPrimary().getVisualBounds().getWidth();
 		
-		sideLength = screenHeight/25.0;
+		sideLength = Math.floor(screenHeight/25.0);
 		grid.setPrefSize(numCols*sideLength, numRows*sideLength);
 		for(int row = 0; row<numRows; row++) {
 			for(int col = 0; col<numCols; col++) {
 				Rectangle r = new Rectangle(sideLength, sideLength);
 				r.setX(col*sideLength);
 				r.setY(row*sideLength);
-				r.setFill(Color.LAWNGREEN);
-				/* Does not look consistent, gets some fuzzy lines
+				r.setFill((row+col)%2==0 ? Color.valueOf("#A7D947") : Color.valueOf("#8ECC39"));
 				r.setStroke(Color.BLACK);
-				r.setStrokeWidth(1.5);*/
+				r.setStrokeWidth(.25);
 				grid.getChildren().add(r);
 				gridSpots[col][row] = Spot.EMPTY;
 			}
-		}
-		
-		for(int i = 0; i<=numCols; i++) {
-			Line line = new Line(sideLength*i, 0, sideLength*i, sideLength*numRows); //double startX, double startY, double endX, double endY
-			line.setStrokeWidth(1.5);
-			grid.getChildren().add(line);
-		}
-		for(int i = 0; i<=numRows; i++) {
-			Line line = new Line(0, sideLength*i, sideLength*numCols, sideLength*i); //double startX, double startY, double endX, double endY
-			line.setStrokeWidth(1.5);
-			grid.getChildren().add(line);
 		}
 	}
 	
@@ -97,15 +85,18 @@ public class Grid {
 			boolean stop = false;
 			@Override
 			public void run() {
-				if(!stop) {
-					if(snake.canMove())
-						snake.move();
-					else {
-						System.out.println("Lose");
-						stop = true;
+				Platform.runLater(new Runnable() {
+					@Override
+					public void run() {
+						if(!stop) {
+							if(!snake.move()) {
+								System.out.println("Lose");
+								stop = true;
+							}
+						}
 					}
-				}
+				});
 			}
-		}, 0, 300);
+		}, 0, 200);
 	}
 }

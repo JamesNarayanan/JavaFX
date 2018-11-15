@@ -50,15 +50,19 @@ public class Snake {
 		grid.getChildren().add(food);
 	}
 	
-	public void move() {
+	public boolean move() {
 		for(int i = 0; i<length; i++) {
 			for(int t = 0; t<turnPoints.size(); t++) {
 				if(Arrays.equals(snake.get(i), (int[]) turnPoints.get(t).get(0))) {
 					directions.set(i, (Direction) turnPoints.get(t).get(1)); 
-					if(i==snake.size()-1)
+					if(i==length-1)
 						turnPoints.remove(t);
 				}
 			}
+			
+			if(i==0 && !canMove())
+				return false;
+			
 			switch(directions.get(i)) {
 			case UP:
 				rects.get(i).setTranslateY(rects.get(i).getTranslateY() - sideLength);
@@ -95,21 +99,29 @@ public class Snake {
 				break;
 			}
 		}
+		return true;
 	}
 	
 	public boolean canMove() {
 		//Have to add in hitting itself
-		//Have to allow turning while in last rows
-		if(snake.get(0)[0]==0 && directions.get(0)==Direction.LEFT
-		|| snake.get(0)[0]==gridSpots.length-1 && directions.get(0)==Direction.RIGHT
-		|| snake.get(0)[1]==0 && directions.get(0)==Direction.UP
-		|| snake.get(0)[1]==gridSpots[0].length-1 && directions.get(0)==Direction.DOWN)
+		if((snake.get(0)[0]==0 && directions.get(0)==Direction.LEFT)
+		|| (snake.get(0)[0]==gridSpots.length-1 && directions.get(0)==Direction.RIGHT)
+		|| (snake.get(0)[1]==0 && directions.get(0)==Direction.UP)
+		|| (snake.get(0)[1]==gridSpots[0].length-1 && directions.get(0)==Direction.DOWN))
 			return false;
 		return true;
 	}
 
 	public void grow() {
-		//length++;
+		snake.add(Direction.getPointInDirection(Direction.getOpposite(directions.get(length-1)), snake.get(length-1)));
+		directions.add(directions.get(length-1));
+		Rectangle r = new Rectangle(sideLength, sideLength, rects.get(length-1).getFill());
+		r.setX(snake.get(length)[0]*sideLength);
+		r.setY(snake.get(length)[1]*sideLength);
+		grid.getChildren().add(r);
+		rects.add(r);
+		
+		length++;
 		newFood();
 	}
 	
@@ -126,7 +138,7 @@ public class Snake {
 	}
 	
 	public void turn(Direction dir) {
-		if(dir!=Direction.oppositeDir(this.directions.get(0))) {
+		if(dir!=Direction.getOpposite(this.directions.get(0))) {
 			ArrayList<Object> spot = new ArrayList<>();
 			spot.add(new int[]{snake.get(0)[0], snake.get(0)[1]});
 			spot.add(dir);

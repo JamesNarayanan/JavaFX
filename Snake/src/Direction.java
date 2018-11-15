@@ -18,7 +18,7 @@ public enum Direction {
 		return null;
 	}
 	
-	public static Direction oppositeDir(Direction dir) {
+	public static Direction getOpposite(Direction dir) {
 		switch(dir) {
 		case UP:
 			return Direction.DOWN;
@@ -30,5 +30,33 @@ public enum Direction {
 			return Direction.LEFT;
 		}
 		return null;
+	}
+	
+	/**
+	 * Gets the point in the given direction from the original point
+	 * @param dir The direction of the new point from the original
+	 * @param point The original point
+	 * @return The new point
+	 */
+	public static int[] getPointInDirection(Direction dir, int[] point) {
+		int[] newPoint = new int[2];
+		for(int i = 0; i<2; i++)
+			newPoint[i] = point[i];
+		
+		switch(dir) {
+		case UP:
+			newPoint[1]--;
+			break;
+		case DOWN:
+			newPoint[1]++;
+			break;
+		case LEFT:
+			newPoint[0]--;
+			break;
+		case RIGHT:
+			newPoint[0]++;
+			break;
+		}
+		return newPoint;
 	}
 }
