@@ -94,12 +94,17 @@ public class Grid {
 	public void startTimer() {
 		timer = new Timer();
 		timer.scheduleAtFixedRate(new TimerTask() {
+			boolean stop = false;
 			@Override
 			public void run() {
-				if(snake.canMove())
-					snake.move();
-				else
-					System.out.println("Lose");
+				if(!stop) {
+					if(snake.canMove())
+						snake.move();
+					else {
+						System.out.println("Lose");
+						stop = true;
+					}
+				}
 			}
 		}, 0, 300);
 	}

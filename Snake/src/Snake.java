@@ -24,6 +24,7 @@ public class Snake {
 		this.length = 5;
 		this.snake = new ArrayList<>();
 		snake.add(head);
+		this.food = new Rectangle(sideLength, sideLength, Color.YELLOW);
 		this.directions = new ArrayList<>();
 		this.rects = new ArrayList<>();
 		this.turnPoints = new ArrayList<>();
@@ -44,6 +45,7 @@ public class Snake {
 				snake.add(new int[] {i, snake.get(0)[1]});
 			rects.add(r);
 		}
+
 		newFood();
 		grid.getChildren().add(food);
 	}
@@ -107,18 +109,18 @@ public class Snake {
 	}
 
 	public void grow() {
-		length++;
+		//length++;
 		newFood();
 	}
 	
 	public void newFood() {
+		System.out.println("New Food");
 		int[] foodSpot = {(int) (Math.random()*gridSpots.length), (int) (Math.random()*gridSpots[0].length)};
 		while(gridSpots[foodSpot[0]][foodSpot[1]]!=Spot.EMPTY) {
 			foodSpot[0] = (int) (Math.random()*gridSpots.length);
 			foodSpot[1] = (int) (Math.random()*gridSpots[0].length);
 		}
 		gridSpots[foodSpot[0]][foodSpot[1]] = Spot.FOOD;
-		food = new Rectangle(sideLength, sideLength, Color.YELLOW);
 		food.setX(foodSpot[0]*sideLength);
 		food.setY(foodSpot[1]*sideLength);
 	}
