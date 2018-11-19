@@ -28,13 +28,24 @@ public class SnakeGame extends Application {
 	
 	private Scene mainScene() {
 		Grid grid = new Grid();
+		grid.newSnake();
 		
-		Scene scene = new Scene(grid.getGrids());
+		Scene scene = new Scene(grid.getPanes());
 		scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
+			boolean first = true;
 			@Override
 			public void handle(KeyEvent event) {
-				if(grid.getStart())
+				if(grid.getStart()) {
+					if(first) {
+						first = false;
+					}
+					else {
+						grid.newSnake();
+						scene.setRoot(grid.getPanes());
+					}
+						
 					grid.startTimer();
+				}
 				else
 					grid.getSnake().turn(Direction.keyCodeToDir(event.getCode()));
 			}

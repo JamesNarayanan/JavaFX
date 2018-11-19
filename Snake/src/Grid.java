@@ -9,7 +9,6 @@ import javafx.scene.Node;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -23,37 +22,60 @@ public class Grid {
 	private Pane grid;
 	private Spot[][] gridSpots;
 	private Snake snake;
+	/**
+	 * If the game is in the start stage, where movement has not started yet
+	 * <br><br>
+	 * {@code True} before starting the first time and after losing
+	 */
 	private boolean start;
 	private Pane directionsBox;
+	private Pane playAgainBox;
 	private final int numRows, numCols;
 	private final double sideLength;
 	private Pane snakeGrid;
+	private Pane scorePane;
 	private Timer timer;
 	private final int timeInterval;
 	
 	public Grid() {
-		grid = new Pane();
-		numRows = 15; numCols = 20;
-		gridSpots = new Spot[numCols][numRows];
-		timeInterval = 200;
-		
 		double screenHeight = Screen.getPrimary().getVisualBounds().getHeight();
 		//double screenWidth = Screen.getPrimary().getVisualBounds().getWidth();
 		
 		sideLength = Math.floor(screenHeight/25.0);
+		
+		grid = new Pane();
+		
+		numRows = 15; numCols = 20;
+		gridSpots = new Spot[numCols][numRows];
+		timeInterval = 200;
+		
 		grid.setPrefSize(numCols*sideLength, numRows*sideLength);
 		for(int row = 0; row<numRows; row++) {
 			for(int col = 0; col<numCols; col++) {
 				Rectangle r = new Rectangle(sideLength, sideLength);
 				r.setX(col*sideLength);
 				r.setY(row*sideLength);
-				r.setFill((row+col)%2==0 ? Color.valueOf("#A7D947") : Color.valueOf("#8ECC39"));
+				r.setFill((row+col)%2==0 ? Color.rgb(167,217,71) : Color.rgb(142,204,57));
 				r.setStroke(Color.BLACK);
 				r.setStrokeWidth(.25);
 				grid.getChildren().add(r);
 				gridSpots[col][row] = Spot.EMPTY;
 			}
 		}
+		
+		scorePane = new Pane();
+		scorePane.setPrefSize(numCols*sideLength, sideLength);
+		scorePane.setBackground(new Background(new BackgroundFill(Color.rgb(162,224,60), null, null)));
+		grid.setTranslateY(scorePane.getPrefHeight());
+		
+		Text scoreText = new Text("Score: 0");
+		scoreText.setTextOrigin(VPos.CENTER);
+		scoreText.setFont(Font.font("Roboto", sideLength*.8));
+		scoreText.setFill(Color.WHITE);
+		scoreText.setY(scorePane.getPrefHeight()/2);
+		scoreText.setWrappingWidth(scorePane.getPrefWidth());
+		scoreText.setTextAlignment(TextAlignment.CENTER);
+		scorePane.getChildren().add(scoreText);
 		
 		directionsBox = new Pane();
 		directionsBox.setPrefSize(sideLength*8.5, sideLength*1.5);
@@ -68,23 +90,28 @@ public class Grid {
 		directions.setY(directionsBox.getPrefHeight()/2);
 		directions.setWrappingWidth(directionsBox.getPrefWidth());
 		directions.setTextAlignment(TextAlignment.CENTER);
-		
 		directionsBox.getChildren().add(directions);
-		grid.getChildren().add(directionsBox);
 		
-		newSnake();
+		playAgainBox = new Pane();
+		playAgainBox.setPrefSize(sideLength*8.5, sideLength*5.5);
+		playAgainBox.setTranslateY((sideLength*numRows - playAgainBox.getPrefHeight())/2);
+		playAgainBox.setTranslateX((sideLength*numCols - playAgainBox.getPrefWidth())/2);
+		playAgainBox.setBackground(new Background(new BackgroundFill(Color.BLUE, new CornerRadii(10), null)));
+		playAgainBox.setOpacity(0);
+		
+		Text playAgain = new Text();
+		playAgain.setTextOrigin(VPos.CENTER);
+		playAgain.setFont(Font.font("Roboto", sideLength*.8));
+		playAgain.setFill(Color.WHITE);
+		playAgain.setY(playAgainBox.getPrefHeight()/2);
+		playAgain.setWrappingWidth(playAgainBox.getPrefWidth());
+		playAgain.setTextAlignment(TextAlignment.CENTER);
+		playAgainBox.getChildren().add(playAgain);
+		
 	}
 	
-	public Pane getBackgroundGrid() {
-		return grid;
-	}
-	
-	public Pane getSnakeGrid() {
-		return snakeGrid;
-	}
-	
-	public Group getGrids() {
-		return new Group(grid, snakeGrid);
+	public Group getPanes() {
+		return new Group(scorePane, grid, snakeGrid);
 	}
 	
 	public Snake getSnake() {
@@ -97,24 +124,14 @@ public class Grid {
 	
 	public Snake newSnake() {
 		start = true;
-		directionsBox.setOpacity(1);
+		playAgainBox.setOpacity(0);
 		snakeGrid = new Pane();
+		snakeGrid.setTranslateY(scorePane.getPrefHeight());
+		snakeGrid.getChildren().addAll(directionsBox, playAgainBox);
 		snakeGrid.setPrefSize(numCols*sideLength, numRows*sideLength);
 		snake = new Snake(gridSpots, new int[]{4, numRows/2}, snakeGrid, sideLength);
+		directionsBox.toFront();
 		return snake;
-	}
-	
-	public static Pane getGridNode (GridPane grid, int row, int column) {
-	    Node result = null;
-
-	    for (Node node : grid.getChildren()) {
-	        if(GridPane.getRowIndex(node) == row && GridPane.getColumnIndex(node) == column) {
-	            result = node;
-	            break;
-	        }
-	    }
-
-	    return (Pane) result;
 	}
 	
 	public void startTimer() {
@@ -122,16 +139,18 @@ public class Grid {
 		fade(directionsBox, 500, true);
 		timer = new Timer();
 		timer.scheduleAtFixedRate(new TimerTask() {
-			boolean stop = false;
 			@Override
 			public void run() {
 				Platform.runLater(new Runnable() {
 					@Override
 					public void run() {
-						if(!stop) {
+						if(!start) {
 							if(!snake.move()) {
 								System.out.println("Lose");
-								stop = true;
+								playAgain();
+							}
+							else {
+								((Text) (scorePane.getChildren().get(0))).setText("Score: " + snake.getScore());
 							}
 						}
 					}
@@ -140,8 +159,19 @@ public class Grid {
 		}, 0, timeInterval);
 	}
 	
-	private void fade(Node n, double millis, boolean fadeOut) {
-		FadeTransition fade = new FadeTransition(Duration.millis(millis), n);
+	private void playAgain() {
+		playAgainBox.toFront();
+		((Text) (playAgainBox.getChildren().get(0))).setText("Score: " + snake.getScore() + "\n\n↻ Play Again?");
+		fade(playAgainBox, 200, false);
+		timer.cancel();
+		timer.purge();
+		timer = new Timer();
+		start = true;
+		gridSpots = new Spot[numCols][numRows];
+	}
+	
+	private void fade(Node node, double millis, boolean fadeOut) {
+		FadeTransition fade = new FadeTransition(Duration.millis(millis), node);
 		if(fadeOut) {
 			fade.setFromValue(1.0);
 			fade.setToValue(0.0);
