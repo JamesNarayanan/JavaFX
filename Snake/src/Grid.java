@@ -1,20 +1,30 @@
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javafx.animation.FadeTransition;
 import javafx.application.Platform;
+import javafx.geometry.VPos;
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Screen;
+import javafx.util.Duration;
 
 public class Grid {
 	private Pane grid;
 	private Spot[][] gridSpots;
 	private Snake snake;
 	private boolean start;
+	private Pane directionsBox;
 	private final int numRows, numCols;
 	private final double sideLength;
 	private Pane snakeGrid;
@@ -44,6 +54,24 @@ public class Grid {
 				gridSpots[col][row] = Spot.EMPTY;
 			}
 		}
+		
+		directionsBox = new Pane();
+		directionsBox.setPrefSize(sideLength*8.5, sideLength*1.5);
+		directionsBox.setTranslateY(sideLength*.75);
+		directionsBox.setTranslateX((sideLength*numCols - directionsBox.getPrefWidth())/2);
+		directionsBox.setBackground(new Background(new BackgroundFill(Color.gray(.3), new CornerRadii(5), null)));
+		
+		Text directions = new Text("Press any key to start!");
+		directions.setTextOrigin(VPos.CENTER);
+		directions.setFont(Font.font("Roboto", sideLength*.8));
+		directions.setFill(Color.WHITE);
+		directions.setY(directionsBox.getPrefHeight()/2);
+		directions.setWrappingWidth(directionsBox.getPrefWidth());
+		directions.setTextAlignment(TextAlignment.CENTER);
+		
+		directionsBox.getChildren().add(directions);
+		grid.getChildren().add(directionsBox);
+		
 		newSnake();
 	}
 	
@@ -69,6 +97,7 @@ public class Grid {
 	
 	public Snake newSnake() {
 		start = true;
+		directionsBox.setOpacity(1);
 		snakeGrid = new Pane();
 		snakeGrid.setPrefSize(numCols*sideLength, numRows*sideLength);
 		snake = new Snake(gridSpots, new int[]{4, numRows/2}, snakeGrid, sideLength);
@@ -90,6 +119,7 @@ public class Grid {
 	
 	public void startTimer() {
 		start = false;
+		fade(directionsBox, 500, true);
 		timer = new Timer();
 		timer.scheduleAtFixedRate(new TimerTask() {
 			boolean stop = false;
@@ -108,5 +138,18 @@ public class Grid {
 				});
 			}
 		}, 0, timeInterval);
+	}
+	
+	private void fade(Node n, double millis, boolean fadeOut) {
+		FadeTransition fade = new FadeTransition(Duration.millis(millis), n);
+		if(fadeOut) {
+			fade.setFromValue(1.0);
+			fade.setToValue(0.0);
+		}
+		else {
+			fade.setFromValue(0.0);
+			fade.setToValue(1.0);
+		}
+		fade.play();
 	}
 }
