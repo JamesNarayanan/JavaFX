@@ -125,6 +125,9 @@ public class Grid {
 	public Snake newSnake() {
 		start = true;
 		playAgainBox.setOpacity(0);
+		directionsBox.setOpacity(1);
+		((Text) (scorePane.getChildren().get(0))).setText("Score: 0");
+		
 		snakeGrid = new Pane();
 		snakeGrid.setTranslateY(scorePane.getPrefHeight());
 		snakeGrid.getChildren().addAll(directionsBox, playAgainBox);
@@ -146,7 +149,6 @@ public class Grid {
 					public void run() {
 						if(!start) {
 							if(!snake.move()) {
-								System.out.println("Lose");
 								playAgain();
 							}
 							else {
@@ -165,9 +167,12 @@ public class Grid {
 		fade(playAgainBox, 200, false);
 		timer.cancel();
 		timer.purge();
-		timer = new Timer();
 		start = true;
-		gridSpots = new Spot[numCols][numRows];
+		for(int row = 0; row<numRows; row++) {
+			for(int col = 0; col<numCols; col++) {
+				gridSpots[col][row] = Spot.EMPTY;
+			}
+		}
 	}
 	
 	private void fade(Node node, double millis, boolean fadeOut) {
