@@ -34,7 +34,9 @@ public class Grid {
 	private final double sideLength;
 	private Pane snakeGrid;
 	private Pane scorePane;
+	private Pane pausePane;
 	private Timer timer;
+	private boolean paused;
 	private final int timeInterval;
 	
 	public Grid() {
@@ -47,6 +49,7 @@ public class Grid {
 		
 		numRows = 15; numCols = 20;
 		gridSpots = new Spot[numCols][numRows];
+		paused = false;
 		timeInterval = 200;
 		
 		grid.setPrefSize(numCols*sideLength, numRows*sideLength);
@@ -67,6 +70,11 @@ public class Grid {
 		scorePane.setPrefSize(numCols*sideLength, sideLength);
 		scorePane.setBackground(new Background(new BackgroundFill(Color.rgb(162,224,60), null, null)));
 		grid.setTranslateY(scorePane.getPrefHeight());
+		
+		pausePane = new Pane();
+		pausePane.setPrefSize(numCols*sideLength, scorePane.getPrefHeight() + numRows*sideLength);
+		pausePane.setBackground(new Background(new BackgroundFill(Color.BLACK, null, null)));
+		pausePane.setOpacity(0);
 		
 		Text scoreText = new Text("Score: 0");
 		scoreText.setTextOrigin(VPos.CENTER);
@@ -111,7 +119,7 @@ public class Grid {
 	}
 	
 	public Group getPanes() {
-		return new Group(scorePane, grid, snakeGrid);
+		return new Group(scorePane, grid, snakeGrid, pausePane);
 	}
 	
 	public Snake getSnake() {
@@ -120,6 +128,10 @@ public class Grid {
 	
 	public boolean getStart() {
 		return start;
+	}
+	
+	public boolean isPaused() {
+		return paused;
 	}
 	
 	public Snake newSnake() {
@@ -141,6 +153,7 @@ public class Grid {
 		start = false;
 		fade(directionsBox, 500, true);
 		timer = new Timer();
+		
 		timer.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
@@ -159,6 +172,37 @@ public class Grid {
 				});
 			}
 		}, 0, timeInterval);
+	}
+	
+	public void pause() {
+		timer.cancel();
+		paused = true;
+		pausePane.toFront();
+		pausePane.setOpacity(.3);
+	}
+	
+	public void resume() {
+		timer = new Timer();
+		timer.scheduleAtFixedRate(new TimerTask() { //Have to repeat code because a TimerTask cannot be rescheduled
+			@Override
+			public void run() {
+				Platform.runLater(new Runnable() {
+					@Override
+					public void run() {
+						if(!start) {
+							if(!snake.move()) {
+								playAgain();
+							}
+							else {
+								((Text) (scorePane.getChildren().get(0))).setText("Score: " + snake.getScore());
+							}
+						}
+					}
+				});
+			}
+		}, 0, timeInterval);
+		paused = false;
+		pausePane.setOpacity(0);
 	}
 	
 	private void playAgain() {

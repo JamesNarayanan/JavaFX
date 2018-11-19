@@ -1,6 +1,7 @@
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 
@@ -40,6 +41,7 @@ public class SnakeGame extends Application {
 					if(first) {
 						first = false;
 						grid.startTimer();
+						grid.getSnake().turn(Direction.keyCodeToDir(event.getCode()));
 					}
 					else {
 						if(step==1) {
@@ -49,13 +51,21 @@ public class SnakeGame extends Application {
 						}
 						else {
 							grid.startTimer();
+							grid.getSnake().turn(Direction.keyCodeToDir(event.getCode()));
 							step--;
 						}
 					}
 					
 				}
-				else
+				else {
+					if(event.getCode()==KeyCode.SPACE) {
+						if(grid.isPaused())
+							grid.resume();
+						else
+							grid.pause();
+					}
 					grid.getSnake().turn(Direction.keyCodeToDir(event.getCode()));
+				}
 			}
 		});
 		return scene;
