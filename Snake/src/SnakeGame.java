@@ -33,7 +33,10 @@ public class SnakeGame extends Application {
 		scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
 			@Override
 			public void handle(KeyEvent event) {
-				grid.getSnake().turn(Direction.keyCodeToDir(event.getCode()));
+				if(grid.getStart())
+					grid.startTimer();
+				else
+					grid.getSnake().turn(Direction.keyCodeToDir(event.getCode()));
 			}
 		});
 		return scene;

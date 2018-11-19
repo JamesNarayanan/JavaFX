@@ -14,6 +14,7 @@ public class Grid {
 	private Pane grid;
 	private Spot[][] gridSpots;
 	private Snake snake;
+	private boolean start;
 	private final int numRows, numCols;
 	private final double sideLength;
 	private Pane snakeGrid;
@@ -44,7 +45,6 @@ public class Grid {
 			}
 		}
 		newSnake();
-		startTimer();
 	}
 	
 	public Pane getBackgroundGrid() {
@@ -63,7 +63,12 @@ public class Grid {
 		return snake;
 	}
 	
+	public boolean getStart() {
+		return start;
+	}
+	
 	public Snake newSnake() {
+		start = true;
 		snakeGrid = new Pane();
 		snakeGrid.setPrefSize(numCols*sideLength, numRows*sideLength);
 		snake = new Snake(gridSpots, new int[]{4, numRows/2}, snakeGrid, sideLength);
@@ -84,6 +89,7 @@ public class Grid {
 	}
 	
 	public void startTimer() {
+		start = false;
 		timer = new Timer();
 		timer.scheduleAtFixedRate(new TimerTask() {
 			boolean stop = false;
