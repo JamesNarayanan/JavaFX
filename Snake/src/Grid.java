@@ -38,6 +38,7 @@ public class Grid {
 	private Timer timer;
 	private boolean paused;
 	private final int timeInterval;
+	private FadeTransition fadeTrans;
 	
 	public Grid() {
 		double screenHeight = Screen.getPrimary().getVisualBounds().getHeight();
@@ -50,7 +51,7 @@ public class Grid {
 		numRows = 15; numCols = 20;
 		gridSpots = new Spot[numCols][numRows];
 		paused = false;
-		timeInterval = 200;
+		timeInterval = 150;
 		
 		grid.setPrefSize(numCols*sideLength, numRows*sideLength);
 		for(int row = 0; row<numRows; row++) {
@@ -136,6 +137,8 @@ public class Grid {
 	
 	public Snake newSnake() {
 		start = true;
+		if(fadeTrans!=null)
+			fadeTrans.stop();
 		playAgainBox.setOpacity(0);
 		directionsBox.setOpacity(1);
 		((Text) (scorePane.getChildren().get(0))).setText("Score: 0");
@@ -206,12 +209,14 @@ public class Grid {
 	}
 	
 	private void playAgain() {
+		start = true;
 		playAgainBox.toFront();
 		((Text) (playAgainBox.getChildren().get(0))).setText("Score: " + snake.getScore() + "\n\n↻ Play Again?");
-		fade(playAgainBox, 200, false);
+		fadeTrans = fade(playAgainBox, 200, false);
+		
 		timer.cancel();
 		timer.purge();
-		start = true;
+		
 		for(int row = 0; row<numRows; row++) {
 			for(int col = 0; col<numCols; col++) {
 				gridSpots[col][row] = Spot.EMPTY;
@@ -219,7 +224,7 @@ public class Grid {
 		}
 	}
 	
-	private void fade(Node node, double millis, boolean fadeOut) {
+	private FadeTransition fade(Node node, double millis, boolean fadeOut) {
 		FadeTransition fade = new FadeTransition(Duration.millis(millis), node);
 		if(fadeOut) {
 			fade.setFromValue(1.0);
@@ -230,5 +235,6 @@ public class Grid {
 			fade.setToValue(1.0);
 		}
 		fade.play();
+		return fade;
 	}
 }
