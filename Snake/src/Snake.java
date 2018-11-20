@@ -1,7 +1,11 @@
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -12,7 +16,7 @@ public class Snake {
 	private final double sideLength;
 	private ArrayList<Rectangle> rects;
 	private ArrayList<int[]> snake;
-	private Rectangle food;
+	private ImageView food;
 	private ArrayList<ArrayList<Object>> turnPoints;
 	private int length;
 	private int score;
@@ -27,7 +31,12 @@ public class Snake {
 		this.score = 0;
 		this.snake = new ArrayList<>();
 		snake.add(head);
-		this.food = new Rectangle(sideLength, sideLength, Color.YELLOW);
+		 //this.food = new Rectangle(sideLength, sideLength, Color.YELLOW);
+		try {
+			this.food = new ImageView(new Image(new FileInputStream("apple.png")));
+		} catch (FileNotFoundException e) {e.printStackTrace();}
+		this.food.setFitWidth(sideLength);
+		this.food.setFitHeight(sideLength);
 		this.directions = new ArrayList<>();
 		this.rects = new ArrayList<>();
 		this.turnPoints = new ArrayList<>();
