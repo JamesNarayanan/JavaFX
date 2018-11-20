@@ -15,7 +15,6 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.VPos;
 import javafx.scene.Scene;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -426,30 +425,37 @@ public class Tetris extends Application {
 					public void run() {
 						Scene scene = new Scene(vbox);
 						scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
+							@SuppressWarnings("incomplete-switch")
 							@Override
 							public void handle(KeyEvent event) {
 								//System.out.println(event.getCode());
 								if(!wait) {
-									if(event.getCode()==KeyCode.DOWN) {
+									switch(event.getCode()) {
+									case S:
+									case DOWN:
 										if(canMoveBlock(Direction.DOWN))
 											moveBlock(Direction.DOWN, 1);
 										else
 											newBlock();
-									}
-									else if(event.getCode()==KeyCode.UP) {
+										break;
+									case W:
+									case UP:
 										rotateBlock();
-									}
-									else if(event.getCode()==KeyCode.LEFT) {
+										break;
+									case A:
+									case LEFT:
 										if(canMoveBlock(Direction.LEFT))
 											moveBlock(Direction.LEFT, 0);
-									}
-									else if(event.getCode()==KeyCode.RIGHT) {
+										break;
+									case D:
+									case RIGHT:
 										if(canMoveBlock(Direction.RIGHT))
 											moveBlock(Direction.RIGHT, 0);
-									}
-									else if(event.getCode()==KeyCode.SPACE) {
+										break;
+									case SPACE:
 										while(canMoveBlock(Direction.DOWN))
 											moveBlock(Direction.DOWN, 2);
+										break;
 									}
 								}
 							}
