@@ -31,12 +31,11 @@ public class Snake {
 		this.score = 0;
 		this.snake = new ArrayList<>();
 		snake.add(head);
-		 //this.food = new Rectangle(sideLength, sideLength, Color.YELLOW);
+		//this.food = new Rectangle(sideLength, sideLength, Color.YELLOW);
 		try {
-			this.food = new ImageView(new Image(new FileInputStream("apple.png")));
+			this.food = new ImageView(new Image(new FileInputStream("food.png")));
 		} catch (FileNotFoundException e) {e.printStackTrace();}
-		this.food.setFitWidth(sideLength);
-		this.food.setFitHeight(sideLength);
+		this.food.setFitWidth(sideLength); this.food.setFitHeight(sideLength);
 		this.directions = new ArrayList<>();
 		this.rects = new ArrayList<>();
 		this.turnPoints = new ArrayList<>();

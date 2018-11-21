@@ -1,3 +1,5 @@
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -6,6 +8,8 @@ import javafx.application.Platform;
 import javafx.geometry.VPos;
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -68,7 +72,7 @@ public class Grid {
 		}
 		
 		scorePane = new Pane();
-		scorePane.setPrefSize(numCols*sideLength, sideLength);
+		scorePane.setPrefSize(numCols*sideLength, sideLength*1.5);
 		scorePane.setBackground(new Background(new BackgroundFill(Color.rgb(162,224,60), null, null)));
 		grid.setTranslateY(scorePane.getPrefHeight());
 		
@@ -77,14 +81,22 @@ public class Grid {
 		pausePane.setBackground(new Background(new BackgroundFill(Color.BLACK, null, null)));
 		pausePane.setOpacity(0);
 		
-		Text scoreText = new Text("Score: 0");
+		ImageView apple = null;
+		try {
+			apple = new ImageView(new Image(new FileInputStream("food.png")));
+		} catch (FileNotFoundException e) {e.printStackTrace();}
+		apple.setFitWidth(sideLength); apple.setFitHeight(sideLength);
+		apple.setX(scorePane.getPrefWidth()/2 - sideLength*1.25);
+		apple.setY((scorePane.getPrefHeight()-sideLength)/2 - sideLength/25);
+		
+		Text scoreText = new Text("0");
 		scoreText.setTextOrigin(VPos.CENTER);
 		scoreText.setFont(Font.font("Roboto", sideLength*.8));
 		scoreText.setFill(Color.WHITE);
 		scoreText.setY(scorePane.getPrefHeight()/2);
 		scoreText.setWrappingWidth(scorePane.getPrefWidth());
 		scoreText.setTextAlignment(TextAlignment.CENTER);
-		scorePane.getChildren().add(scoreText);
+		scorePane.getChildren().addAll(scoreText, apple);
 		
 		directionsBox = new Pane();
 		directionsBox.setPrefSize(sideLength*8.5, sideLength*1.5);
@@ -141,7 +153,7 @@ public class Grid {
 			fadeTrans.stop();
 		playAgainBox.setOpacity(0);
 		directionsBox.setOpacity(1);
-		((Text) (scorePane.getChildren().get(0))).setText("Score: 0");
+		((Text) (scorePane.getChildren().get(0))).setText("0");
 		
 		snakeGrid = new Pane();
 		snakeGrid.setTranslateY(scorePane.getPrefHeight());
@@ -168,7 +180,7 @@ public class Grid {
 								playAgain();
 							}
 							else {
-								((Text) (scorePane.getChildren().get(0))).setText("Score: " + snake.getScore());
+								((Text) (scorePane.getChildren().get(0))).setText("" + snake.getScore());
 							}
 						}
 					}
