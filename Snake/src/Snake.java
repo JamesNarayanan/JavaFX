@@ -34,7 +34,7 @@ public class Snake {
 		//this.food = new Rectangle(sideLength, sideLength, Color.YELLOW);
 		//Image taken from Google's snake game
 		try {
-			this.food = new ImageView(new Image(new FileInputStream("food.png")));
+			this.food = new ImageView(new Image(new FileInputStream("Images/food.png")));
 		} catch (FileNotFoundException e) {e.printStackTrace();}
 		this.food.setFitWidth(sideLength); this.food.setFitHeight(sideLength);
 		this.directions = new ArrayList<>();

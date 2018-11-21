@@ -86,7 +86,7 @@ public class Grid {
 		//Image taken from Google's snake game
 		ImageView apple = null;
 		try {
-			apple = new ImageView(new Image(new FileInputStream("food.png")));
+			apple = new ImageView(new Image(new FileInputStream("Images/food.png")));
 		} catch (FileNotFoundException e) {e.printStackTrace();}
 		apple.setFitWidth(sideLength); apple.setFitHeight(sideLength);
 		apple.setX(scorePane.getPrefWidth()/2 - sideLength*2.25);
@@ -95,7 +95,7 @@ public class Grid {
 		//Image taken from Google's snake game
 		ImageView trophy = null;
 		try {
-			trophy = new ImageView(new Image(new FileInputStream("trophy.png")));
+			trophy = new ImageView(new Image(new FileInputStream("Images/trophy.png")));
 		} catch (FileNotFoundException e) {e.printStackTrace();}
 		trophy.setFitWidth(sideLength); trophy.setFitHeight(sideLength);
 		trophy.setX(scorePane.getPrefWidth()/2 + sideLength*1.25);
@@ -134,7 +134,7 @@ public class Grid {
 		
 		ImageView pAApple = null;
 		try {
-			pAApple = new ImageView(new Image(new FileInputStream("food.png")));
+			pAApple = new ImageView(new Image(new FileInputStream("Images/food.png")));
 		} catch (FileNotFoundException e) {e.printStackTrace();}
 		pAApple.setFitWidth(sideLength); pAApple.setFitHeight(sideLength);
 		pAApple.setX(playAgainBox.getPrefWidth()/2 - sideLength*1.4);
@@ -142,7 +142,7 @@ public class Grid {
 		
 		ImageView pATrophy = null;
 		try {
-			pATrophy = new ImageView(new Image(new FileInputStream("trophy.png")));
+			pATrophy = new ImageView(new Image(new FileInputStream("Images/trophy.png")));
 		} catch (FileNotFoundException e) {e.printStackTrace();}
 		pATrophy.setFitWidth(sideLength); pATrophy.setFitHeight(sideLength);
 		pATrophy.setX(playAgainBox.getPrefWidth()/2 - sideLength*1.4);
