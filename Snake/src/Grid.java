@@ -41,6 +41,7 @@ public class Grid {
 	private Pane pausePane;
 	private Timer timer;
 	private boolean paused;
+	private int highScore;
 	private final int timeInterval;
 	private FadeTransition fadeTrans;
 	
@@ -56,6 +57,7 @@ public class Grid {
 		gridSpots = new Spot[numCols][numRows];
 		paused = false;
 		timeInterval = 150;
+		highScore = 0;
 		
 		grid.setPrefSize(numCols*sideLength, numRows*sideLength);
 		for(int row = 0; row<numRows; row++) {
@@ -87,17 +89,26 @@ public class Grid {
 			apple = new ImageView(new Image(new FileInputStream("food.png")));
 		} catch (FileNotFoundException e) {e.printStackTrace();}
 		apple.setFitWidth(sideLength); apple.setFitHeight(sideLength);
-		apple.setX(scorePane.getPrefWidth()/2 - sideLength*1.25);
+		apple.setX(scorePane.getPrefWidth()/2 - sideLength*2.25);
 		apple.setY((scorePane.getPrefHeight()-sideLength)/2 - sideLength/25);
 		
-		Text scoreText = new Text("0");
+		//Image taken from Google's snake game
+		ImageView trophy = null;
+		try {
+			trophy = new ImageView(new Image(new FileInputStream("trophy.png")));
+		} catch (FileNotFoundException e) {e.printStackTrace();}
+		trophy.setFitWidth(sideLength); trophy.setFitHeight(sideLength);
+		trophy.setX(scorePane.getPrefWidth()/2 + sideLength*1.25);
+		trophy.setY((scorePane.getPrefHeight()-sideLength)/2 - sideLength/25);
+		
+		Text scoreText = new Text("0\t0");
 		scoreText.setTextOrigin(VPos.CENTER);
 		scoreText.setFont(Font.font("Roboto", sideLength*.8));
 		scoreText.setFill(Color.WHITE);
 		scoreText.setY(scorePane.getPrefHeight()/2);
 		scoreText.setWrappingWidth(scorePane.getPrefWidth());
 		scoreText.setTextAlignment(TextAlignment.CENTER);
-		scorePane.getChildren().addAll(scoreText, apple);
+		scorePane.getChildren().addAll(scoreText, apple, trophy);
 		
 		directionsBox = new Pane();
 		directionsBox.setPrefSize(sideLength*8.5, sideLength*1.5);
@@ -126,8 +137,16 @@ public class Grid {
 			pAApple = new ImageView(new Image(new FileInputStream("food.png")));
 		} catch (FileNotFoundException e) {e.printStackTrace();}
 		pAApple.setFitWidth(sideLength); pAApple.setFitHeight(sideLength);
-		pAApple.setX(playAgainBox.getPrefWidth()/2 - sideLength*1.25);
-		pAApple.setY((playAgainBox.getPrefHeight()-sideLength)/3.5);
+		pAApple.setX(playAgainBox.getPrefWidth()/2 - sideLength*1.4);
+		pAApple.setY((playAgainBox.getPrefHeight()-sideLength)/5.5);
+		
+		ImageView pATrophy = null;
+		try {
+			pATrophy = new ImageView(new Image(new FileInputStream("trophy.png")));
+		} catch (FileNotFoundException e) {e.printStackTrace();}
+		pATrophy.setFitWidth(sideLength); pATrophy.setFitHeight(sideLength);
+		pATrophy.setX(playAgainBox.getPrefWidth()/2 - sideLength*1.4);
+		pATrophy.setY((playAgainBox.getPrefHeight()-sideLength)/2.45);
 		
 		Text playAgain = new Text();
 		playAgain.setTextOrigin(VPos.CENTER);
@@ -136,7 +155,7 @@ public class Grid {
 		playAgain.setY(playAgainBox.getPrefHeight()/2);
 		playAgain.setWrappingWidth(playAgainBox.getPrefWidth());
 		playAgain.setTextAlignment(TextAlignment.CENTER);
-		playAgainBox.getChildren().addAll(playAgain, pAApple);
+		playAgainBox.getChildren().addAll(playAgain, pAApple, pATrophy);
 		
 	}
 	
@@ -162,7 +181,7 @@ public class Grid {
 			fadeTrans.stop();
 		playAgainBox.setOpacity(0);
 		directionsBox.setOpacity(1);
-		((Text) (scorePane.getChildren().get(0))).setText("0");
+		((Text) (scorePane.getChildren().get(0))).setText("0\t" + highScore);
 		
 		snakeGrid = new Pane();
 		snakeGrid.setTranslateY(scorePane.getPrefHeight());
@@ -189,7 +208,9 @@ public class Grid {
 								playAgain();
 							}
 							else {
-								((Text) (scorePane.getChildren().get(0))).setText("" + snake.getScore());
+								if(snake.getScore()>highScore)
+									highScore = snake.getScore();
+								((Text) (scorePane.getChildren().get(0))).setText("" + snake.getScore() + "\t" + highScore);
 							}
 						}
 					}
@@ -218,7 +239,9 @@ public class Grid {
 								playAgain();
 							}
 							else {
-								((Text) (scorePane.getChildren().get(0))).setText("" + snake.getScore());
+								if(snake.getScore()>highScore)
+									highScore = snake.getScore();
+								((Text) (scorePane.getChildren().get(0))).setText("" + snake.getScore() + "\t" + highScore);
 							}
 						}
 					}
@@ -232,7 +255,7 @@ public class Grid {
 	private void playAgain() {
 		start = true;
 		playAgainBox.toFront();
-		((Text) (playAgainBox.getChildren().get(0))).setText("" + snake.getScore() + "\n\n↻ Play Again?");
+		((Text) (playAgainBox.getChildren().get(0))).setText("" + snake.getScore() + "\n" + highScore + "\n\n↻ Play Again?");
 		fadeTrans = fade(playAgainBox, 200, false);
 		
 		timer.cancel();
