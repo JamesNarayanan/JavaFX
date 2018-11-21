@@ -5,7 +5,7 @@ import java.util.Scanner;
 
 public class RandomWordGen {
 	public static void main(String[] args) throws FileNotFoundException {
-		String wordList = "Scrabble.txt";
+		String wordList = "src/WordLists/Scrabble.txt";
 		Scanner scan = new Scanner(new File(wordList));
 		ArrayList<String> words = new ArrayList<>(370100);
 		while(scan.hasNext()) {

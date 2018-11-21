@@ -1,9 +1,11 @@
 
-import java.io.File;
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Scanner;
 
 import javafx.animation.FadeTransition;
 import javafx.application.Application;
@@ -185,7 +187,7 @@ public class Hangman extends Application {
 	        			theWord = getWord();
 	        			lives = 6;
 	        			mainStage.setScene(mainScene());	
-				} catch (FileNotFoundException e) {System.out.println("Common Words file not found");}
+				} catch (IOException e) {System.out.println("Common Words file not found");}
 	        }
 	    });
 		addHoverAnimation(regular);
@@ -206,7 +208,7 @@ public class Hangman extends Application {
 	        			theWord = getWord();
 	        			lives = 8;
 	        			mainStage.setScene(mainScene());
-				} catch (FileNotFoundException e) {System.out.println("Scrabble file not found");}
+				} catch (IOException e) {System.out.println("Scrabble file not found");}
 	        }
 	    });
 		addHoverAnimation(scrabble);
@@ -227,7 +229,7 @@ public class Hangman extends Application {
 	        			theWord = getWord();
 	        			lives = 8;
 	        			mainStage.setScene(mainScene());
-				} catch (FileNotFoundException e) {System.out.println("Words file not found");}
+				} catch (IOException e) {System.out.println("Words file not found");}
 	        }
 	    });
 		addHoverAnimation(insane);
@@ -710,7 +712,7 @@ public class Hangman extends Application {
 		lives = (difficultyLevel==1) ? 6 : 8;
 		try {
 			theWord = getWord();
-		} catch (FileNotFoundException e) {e.printStackTrace();}
+		} catch (IOException e) {e.printStackTrace();}
 		progress = "";
 		enteredLetters = "";
 		try {
@@ -814,45 +816,53 @@ public class Hangman extends Application {
 	 * Gets the word that the player will be guessing
 	 * @param difficultyLvl The difficulty of the game, either 1 or 2. This correlates to the wordlist that will be chosen
 	 * @return The chosen word
-	 * @throws FileNotFoundException
+	 * @throws IOException 
 	 */
-	private  String getWord() throws FileNotFoundException {
+	private String getWord() throws IOException {
 		//This chooses which file to use based on the difficulty level
-		File wList = null;
-		int length = 0;
+		InputStream input = null;
 		if(difficultyLevel==1) {
-			wList = new File("CommonWords.txt");
+			input = Hangman.class.getResourceAsStream("/WordLists/CommonWords.txt");
 		}
 		else if(difficultyLevel==2) {
-			wList = new File("Scrabble.txt");
+			input = Hangman.class.getResourceAsStream("/WordLists/Scrabble.txt");
 		}
 		else if(difficultyLevel==3) {
-			wList = new File("Words.txt");
-			//length = 370099;
+			input = Hangman.class.getResourceAsStream("/WordLists/Words.txt");
 		}
 		
-		//Finds the length of the file
-		Scanner getLength = new Scanner(wList);
-		List<String> words = new ArrayList<>();
-		while(getLength.hasNextLine()){
-			length++;
-			words.add(getLength.nextLine().toLowerCase());
-		}
-		getLength.close();
+		List<String> words = Arrays.asList(extract(input).split("\n"));
 		
 		//Creates a random integer less than the number of words, and gets the list value at that location
-		int rndWord = (int) (Math.random()*length);
+		int rndWord = (int) (Math.random()*words.size());
 		while(
-			!words.get(rndWord).contains("a") &&
-			!words.get(rndWord).contains("e") &&
-			!words.get(rndWord).contains("i") &&
-			!words.get(rndWord).contains("o") &&
-			!words.get(rndWord).contains("u") &&
-			!words.get(rndWord).contains("y") ||
+			!words.get(rndWord).toLowerCase().contains("a") &&
+			!words.get(rndWord).toLowerCase().contains("e") &&
+			!words.get(rndWord).toLowerCase().contains("i") &&
+			!words.get(rndWord).toLowerCase().contains("o") &&
+			!words.get(rndWord).toLowerCase().contains("u") &&
+			!words.get(rndWord).toLowerCase().contains("y") ||
 			words.get(rndWord).length()<3) {
-			rndWord = (int) (Math.random()*length);
+			rndWord = (int) (Math.random()*words.size());
 		}
-		
-		return words.get(rndWord).toLowerCase();
+		String word = words.get(rndWord).toLowerCase();
+		return word.substring(0, word.length()-1);
+	}
+	
+	/**
+	 * @see <a href="http://www.gregbugaj.com/?p=283">Source</a>
+	 * @param inputStream InputStream to read from
+	 * @return The content from the stream
+	 * @throws IOException
+	 */
+	public static String extract(InputStream inputStream) throws IOException {	
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();				
+		byte[] buffer = new byte[1024];
+		int read = 0;
+		while ((read = inputStream.read(buffer, 0, buffer.length)) != -1) {
+			baos.write(buffer, 0, read);
+		}		
+		baos.flush();		
+		return  new String(baos.toByteArray(), "UTF-8");
 	}
 }

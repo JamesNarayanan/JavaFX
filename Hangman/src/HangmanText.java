@@ -8,16 +8,19 @@ public class HangmanText {
 		System.out.println("Welcome to Hangman!");
 		
 		//Asks player for difficulty setting and makes sure they enter a valid response
-		System.out.print("What difficulty would you like? 1-Medium or 2-Very Hard ");
+		System.out.print("What difficulty would you like? 1-Medium | 2-Very Hard | 3-Scrabble Words");
 		String dL = scan.nextLine();
-		while(!(dL.equals("1")||dL.equals("2"))) {
+		while(!(dL.equals("1")||dL.equals("2")||dL.equals("3"))) {
 			System.out.print("Enter a valid response: ");
 			dL = scan.next();
 		}
 		int difficultyLvl = Integer.parseInt(dL);
 		
 		//Gets a random word from the difficulty of choice
-		String theWord = getWord(difficultyLvl);
+		String theWord = null;
+		try {
+			theWord = getWord(difficultyLvl);
+		} catch (IOException e) {e.printStackTrace();}
 		//System.out.print(theWord);
 		
 		//Variable initialization
@@ -30,6 +33,7 @@ public class HangmanText {
 		//This changes the amount of lives depending on the difficulty level
 		switch(difficultyLvl) { 
 			case 1: lives = 6; break;
+			case 3:
 			case 2: lives = 8; break;
 		}
 		char guess;
@@ -91,43 +95,34 @@ public class HangmanText {
 		scan.close();
 	}
 	
-	public static String getWord(int difficultyLvl) throws FileNotFoundException {
+	private static String getWord(int difficultyLevel) throws IOException {
 		//This chooses which file to use based on the difficulty level
-		File wList = null;
-		int length = 0;
-		if(difficultyLvl==1) {
-			wList = new File("CommonWords.txt");
-			//length = 10000;
+		InputStream input = null;
+		if(difficultyLevel==1) {
+			input = Hangman.class.getResourceAsStream("/WordLists/CommonWords.txt");
 		}
-		else if(difficultyLvl==2) {
-			wList = new File("Words.txt");
-			//length = 370099;
+		else if(difficultyLevel==2) {
+			input = Hangman.class.getResourceAsStream("/WordLists/Scrabble.txt");
+		}
+		else if(difficultyLevel==3) {
+			input = Hangman.class.getResourceAsStream("/WordLists/Words.txt");
 		}
 		
-		//Finds the length of the file
-		Scanner getLength = new Scanner(wList);
-		List <String>words = new ArrayList<>();
-		while(getLength.hasNextLine()){
-			length++;
-			words.add(getLength.nextLine());
-		}
-		getLength.close();
+		List<String> words = Arrays.asList(Hangman.extract(input).split("\n"));
 		
 		//Creates a random integer less than the number of words, and gets the list value at that location
-		int rndWord = (int) (Math.random()*length);
-		
-		/*//Old Method(more looping is slower):
-		Scanner getWord = new Scanner(wList);
-		int count = 0;
-		String theWord = null;
-		while(count<rndWord) {
-			count++;
-			theWord = getWord.next();
+		int rndWord = (int) (Math.random()*words.size());
+		while(
+			!words.get(rndWord).toLowerCase().contains("a") &&
+			!words.get(rndWord).toLowerCase().contains("e") &&
+			!words.get(rndWord).toLowerCase().contains("i") &&
+			!words.get(rndWord).toLowerCase().contains("o") &&
+			!words.get(rndWord).toLowerCase().contains("u") &&
+			!words.get(rndWord).toLowerCase().contains("y") ||
+			words.get(rndWord).length()<3) {
+			rndWord = (int) (Math.random()*words.size());
 		}
-		getWord.close();*/
-		
-		
-		//return theWord.toLowerCase();
-		return words.get(rndWord).toLowerCase();
+		String word = words.get(rndWord).toLowerCase();
+		return word.substring(0, word.length()-1);
 	}
 }
