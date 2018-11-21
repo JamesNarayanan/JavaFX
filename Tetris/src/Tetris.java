@@ -1,7 +1,9 @@
 
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -912,7 +914,9 @@ public class Tetris extends Application {
 	 * @throws IOException
 	 */
 	private ArrayList<String> highScores(boolean update) throws IOException {
-		String scores = new String (Files.readAllBytes(Paths.get("HighScores.txt")));
+		//String scores = new String (Files.readAllBytes(Paths.get("HighScores.txt")));
+		String scores = extract(Tetris.class.getResourceAsStream("/HighScores.txt"));
+		
 		
 		ArrayList<String> scoresList = new ArrayList<>(Arrays.asList(scores.split("\n")));
 		if(!update)
@@ -957,6 +961,23 @@ public class Tetris extends Application {
 		else
 			highScoreEndText = "No new high score :(";
 		return scoresList;
+	}
+	
+	/**
+	 * @see <a href="http://www.gregbugaj.com/?p=283">Source</a>
+	 * @param inputStream InputStream to read from
+	 * @return The content from the stream
+	 * @throws IOException
+	 */
+	private String extract(InputStream inputStream) throws IOException {	
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();				
+		byte[] buffer = new byte[1024];
+		int read = 0;
+		while ((read = inputStream.read(buffer, 0, buffer.length)) != -1) {
+			baos.write(buffer, 0, read);
+		}		
+		baos.flush();		
+		return  new String(baos.toByteArray(), "UTF-8");
 	}
 	
 	/**
