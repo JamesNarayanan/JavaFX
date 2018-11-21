@@ -1,6 +1,4 @@
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -31,11 +29,8 @@ public class Snake {
 		this.score = 0;
 		this.snake = new ArrayList<>();
 		snake.add(head);
-		//this.food = new Rectangle(sideLength, sideLength, Color.YELLOW);
 		//Image taken from Google's snake game
-		try {
-			this.food = new ImageView(new Image(new FileInputStream("Images/food.png")));
-		} catch (FileNotFoundException e) {e.printStackTrace();}
+		this.food = new ImageView(new Image(Grid.class.getResourceAsStream("/Images/food.png")));
 		this.food.setFitWidth(sideLength); this.food.setFitHeight(sideLength);
 		this.directions = new ArrayList<>();
 		this.rects = new ArrayList<>();

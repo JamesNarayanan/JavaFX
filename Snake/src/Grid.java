@@ -1,5 +1,3 @@
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -84,19 +82,13 @@ public class Grid {
 		pausePane.setOpacity(0);
 		
 		//Image taken from Google's snake game
-		ImageView apple = null;
-		try {
-			apple = new ImageView(new Image(new FileInputStream("Images/food.png")));
-		} catch (FileNotFoundException e) {e.printStackTrace();}
+		ImageView apple = new ImageView(new Image(Grid.class.getResourceAsStream("/Images/food.png")));
 		apple.setFitWidth(sideLength); apple.setFitHeight(sideLength);
 		apple.setX(scorePane.getPrefWidth()/2 - sideLength*2.25);
 		apple.setY((scorePane.getPrefHeight()-sideLength)/2 - sideLength/25);
 		
 		//Image taken from Google's snake game
-		ImageView trophy = null;
-		try {
-			trophy = new ImageView(new Image(new FileInputStream("Images/trophy.png")));
-		} catch (FileNotFoundException e) {e.printStackTrace();}
+		ImageView trophy = new ImageView(new Image(Grid.class.getResourceAsStream("/Images/trophy.png")));
 		trophy.setFitWidth(sideLength); trophy.setFitHeight(sideLength);
 		trophy.setX(scorePane.getPrefWidth()/2 + sideLength*1.25);
 		trophy.setY((scorePane.getPrefHeight()-sideLength)/2 - sideLength/25);
@@ -132,18 +124,12 @@ public class Grid {
 		playAgainBox.setBackground(new Background(new BackgroundFill(Color.BLUE, new CornerRadii(10), null)));
 		playAgainBox.setOpacity(0);
 		
-		ImageView pAApple = null;
-		try {
-			pAApple = new ImageView(new Image(new FileInputStream("Images/food.png")));
-		} catch (FileNotFoundException e) {e.printStackTrace();}
+		ImageView pAApple = new ImageView(new Image(Grid.class.getResourceAsStream("/Images/food.png")));
 		pAApple.setFitWidth(sideLength); pAApple.setFitHeight(sideLength);
 		pAApple.setX(playAgainBox.getPrefWidth()/2 - sideLength*1.4);
 		pAApple.setY((playAgainBox.getPrefHeight()-sideLength)/5.5);
 		
-		ImageView pATrophy = null;
-		try {
-			pATrophy = new ImageView(new Image(new FileInputStream("Images/trophy.png")));
-		} catch (FileNotFoundException e) {e.printStackTrace();}
+		ImageView pATrophy = new ImageView(new Image(Grid.class.getResourceAsStream("/Images/trophy.png")));
 		pATrophy.setFitWidth(sideLength); pATrophy.setFitHeight(sideLength);
 		pATrophy.setX(playAgainBox.getPrefWidth()/2 - sideLength*1.4);
 		pATrophy.setY((playAgainBox.getPrefHeight()-sideLength)/2.45);
