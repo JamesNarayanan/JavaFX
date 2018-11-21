@@ -81,6 +81,7 @@ public class Grid {
 		pausePane.setBackground(new Background(new BackgroundFill(Color.BLACK, null, null)));
 		pausePane.setOpacity(0);
 		
+		//Image taken from Google's snake game
 		ImageView apple = null;
 		try {
 			apple = new ImageView(new Image(new FileInputStream("food.png")));
@@ -120,6 +121,14 @@ public class Grid {
 		playAgainBox.setBackground(new Background(new BackgroundFill(Color.BLUE, new CornerRadii(10), null)));
 		playAgainBox.setOpacity(0);
 		
+		ImageView pAApple = null;
+		try {
+			pAApple = new ImageView(new Image(new FileInputStream("food.png")));
+		} catch (FileNotFoundException e) {e.printStackTrace();}
+		pAApple.setFitWidth(sideLength); pAApple.setFitHeight(sideLength);
+		pAApple.setX(playAgainBox.getPrefWidth()/2 - sideLength*1.25);
+		pAApple.setY((playAgainBox.getPrefHeight()-sideLength)/3.5);
+		
 		Text playAgain = new Text();
 		playAgain.setTextOrigin(VPos.CENTER);
 		playAgain.setFont(Font.font("Roboto", sideLength*.8));
@@ -127,7 +136,7 @@ public class Grid {
 		playAgain.setY(playAgainBox.getPrefHeight()/2);
 		playAgain.setWrappingWidth(playAgainBox.getPrefWidth());
 		playAgain.setTextAlignment(TextAlignment.CENTER);
-		playAgainBox.getChildren().add(playAgain);
+		playAgainBox.getChildren().addAll(playAgain, pAApple);
 		
 	}
 	
@@ -209,7 +218,7 @@ public class Grid {
 								playAgain();
 							}
 							else {
-								((Text) (scorePane.getChildren().get(0))).setText("Score: " + snake.getScore());
+								((Text) (scorePane.getChildren().get(0))).setText("" + snake.getScore());
 							}
 						}
 					}
@@ -223,7 +232,7 @@ public class Grid {
 	private void playAgain() {
 		start = true;
 		playAgainBox.toFront();
-		((Text) (playAgainBox.getChildren().get(0))).setText("Score: " + snake.getScore() + "\n\n↻ Play Again?");
+		((Text) (playAgainBox.getChildren().get(0))).setText("" + snake.getScore() + "\n\n↻ Play Again?");
 		fadeTrans = fade(playAgainBox, 200, false);
 		
 		timer.cancel();

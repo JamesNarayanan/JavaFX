@@ -32,6 +32,7 @@ public class Snake {
 		this.snake = new ArrayList<>();
 		snake.add(head);
 		//this.food = new Rectangle(sideLength, sideLength, Color.YELLOW);
+		//Image taken from Google's snake game
 		try {
 			this.food = new ImageView(new Image(new FileInputStream("food.png")));
 		} catch (FileNotFoundException e) {e.printStackTrace();}

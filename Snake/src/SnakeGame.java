@@ -3,11 +3,13 @@ import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
 public class SnakeGame extends Application {
 	
 	private Stage mainStage;
+	private int step = 1;
 	
 	public static void main(String[] args) {
 		launch(args);
@@ -34,7 +36,6 @@ public class SnakeGame extends Application {
 		Scene scene = new Scene(grid.getPanes());
 		scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
 			boolean first = true;
-			int step = 1;
 			@Override
 			public void handle(KeyEvent event) {
 				if(grid.getStart()) {
@@ -55,7 +56,6 @@ public class SnakeGame extends Application {
 							step--;
 						}
 					}
-					
 				}
 				else {
 					if(event.getCode()==KeyCode.SPACE) {
@@ -65,6 +65,18 @@ public class SnakeGame extends Application {
 							grid.pause();
 					}
 					grid.getSnake().turn(Direction.keyCodeToDir(event.getCode()));
+				}
+			}
+		});
+		scene.setOnMouseClicked(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent event) {
+				if(grid.getStart()) {
+					if(step==1) {
+						grid.newSnake();
+						scene.setRoot(grid.getPanes());
+						step++;
+					}
 				}
 			}
 		});
