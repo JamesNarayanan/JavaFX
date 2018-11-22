@@ -3,12 +3,11 @@ import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
 public class SnakeGame extends Application {
 	public Stage mainStage;
-	private int step;
+	public int step;
 	private boolean first;
 	
 	public static void main(String[] args) {
@@ -65,16 +64,6 @@ public class SnakeGame extends Application {
 							grid.pause();
 					}
 					grid.getSnake().turn(Direction.keyCodeToDir(event.getCode()));
-				}
-			}
-		});
-		scene.setOnMouseClicked(new EventHandler<MouseEvent>() {
-			@Override
-			public void handle(MouseEvent event) {
-				if(!first && grid.getStart() && step==1) {
-					grid.newSnake();
-					scene.setRoot(grid.getPanes());
-					step++;
 				}
 			}
 		});

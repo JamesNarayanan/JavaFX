@@ -163,6 +163,7 @@ public class Grid {
 		directions.setTextAlignment(TextAlignment.CENTER);
 		directionsBox.getChildren().add(directions);
 		
+		
 		playAgainBox = new Pane();
 		playAgainBox.setPrefSize(sideLength*8.5, sideLength*5.5);
 		playAgainBox.setTranslateY((sideLength*numRows - playAgainBox.getPrefHeight())/2);
@@ -180,14 +181,46 @@ public class Grid {
 		pATrophy.setX(playAgainBox.getPrefWidth()/2 - sideLength*1.4);
 		pATrophy.setY((playAgainBox.getPrefHeight()-sideLength)/2.45);
 		
-		Text playAgain = new Text();
-		playAgain.setTextOrigin(VPos.CENTER);
-		playAgain.setFont(Font.font("Roboto", sideLength*.8));
-		playAgain.setFill(Color.WHITE);
-		playAgain.setY(playAgainBox.getPrefHeight()/2);
-		playAgain.setWrappingWidth(playAgainBox.getPrefWidth());
-		playAgain.setTextAlignment(TextAlignment.CENTER);
-		playAgainBox.getChildren().addAll(playAgain, pAApple, pATrophy);
+		Text playAgainScores = new Text();
+		playAgainScores.setTextOrigin(VPos.CENTER);
+		playAgainScores.setFont(Font.font("Roboto", sideLength*.8));
+		playAgainScores.setFill(Color.WHITE);
+		playAgainScores.setY(playAgainBox.getPrefHeight()/3);
+		playAgainScores.setWrappingWidth(playAgainBox.getPrefWidth());
+		playAgainScores.setTextAlignment(TextAlignment.CENTER);
+		
+		Text playAgainText = new Text();
+		playAgainText.setTextOrigin(VPos.CENTER);
+		playAgainText.setFont(Font.font("Roboto", sideLength*.8));
+		playAgainText.setFill(Color.WHITE);
+		playAgainText.setY(playAgainBox.getPrefHeight()/1.3);
+		playAgainText.setWrappingWidth(playAgainBox.getPrefWidth());
+		playAgainText.setTextAlignment(TextAlignment.CENTER);
+		playAgainText.setOnMouseClicked(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent event) {
+				if(playAgainBox.getOpacity()==1) {
+					newSnake();
+					game.mainStage.getScene().setRoot(getPanes());
+					game.step++;
+				}
+			}
+		});
+		playAgainText.setOnMouseEntered(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent event) {
+				if(playAgainBox.getOpacity()==1) {
+					game.mainStage.getScene().setCursor(Cursor.HAND);
+				}
+			}
+		});
+		playAgainText.setOnMouseExited(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent event) {
+				game.mainStage.getScene().setCursor(Cursor.DEFAULT);
+			}
+		});
+		playAgainBox.getChildren().addAll(playAgainScores, playAgainText, pAApple, pATrophy);
 		
 	}
 	
@@ -290,7 +323,8 @@ public class Grid {
 	private void playAgain() {
 		start = true;
 		playAgainBox.toFront();
-		((Text) (playAgainBox.getChildren().get(0))).setText("" + snake.getScore() + "\n" + highScore + "\n\n↻ Play Again?");
+		((Text) (playAgainBox.getChildren().get(0))).setText("" + snake.getScore() + "\n" + highScore);
+		((Text) (playAgainBox.getChildren().get(1))).setText("↻ Play Again?");
 		fadeTrans = fade(playAgainBox, 200, false);
 		
 		timer.cancel();
