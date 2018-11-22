@@ -7,9 +7,9 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
 public class SnakeGame extends Application {
-	
-	private Stage mainStage;
-	private int step = 1;
+	public Stage mainStage;
+	private int step;
+	private boolean first;
 	
 	public static void main(String[] args) {
 		launch(args);
@@ -17,7 +17,8 @@ public class SnakeGame extends Application {
 	
 	@Override
 	public void init() {
-		
+		step = 1;
+		first = true;
 	}
 	
 	@Override
@@ -30,12 +31,11 @@ public class SnakeGame extends Application {
 	}
 	
 	private Scene mainScene() {
-		Grid grid = new Grid();
+		Grid grid = new Grid(this);
 		grid.newSnake();
 		
 		Scene scene = new Scene(grid.getPanes());
 		scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
-			boolean first = true;
 			@Override
 			public void handle(KeyEvent event) {
 				if(grid.getStart()) {
@@ -71,12 +71,10 @@ public class SnakeGame extends Application {
 		scene.setOnMouseClicked(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
-				if(grid.getStart()) {
-					if(step==1) {
-						grid.newSnake();
-						scene.setRoot(grid.getPanes());
-						step++;
-					}
+				if(!first && grid.getStart() && step==1) {
+					grid.newSnake();
+					scene.setRoot(grid.getPanes());
+					step++;
 				}
 			}
 		});

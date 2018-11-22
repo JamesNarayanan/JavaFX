@@ -3,11 +3,14 @@ import java.util.TimerTask;
 
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.geometry.VPos;
+import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -42,8 +45,15 @@ public class Grid {
 	private int highScore;
 	private final int timeInterval;
 	private FadeTransition fadeTrans;
+	/**
+	 * Necessary only to change cursor type
+	 */
+	@SuppressWarnings("unused")
+	private final SnakeGame game;
 	
-	public Grid() {
+	public Grid(SnakeGame game) {
+		this.game = game;
+		
 		double screenHeight = Screen.getPrimary().getVisualBounds().getHeight();
 		//double screenWidth = Screen.getPrimary().getVisualBounds().getWidth();
 		
@@ -100,7 +110,43 @@ public class Grid {
 		scoreText.setY(scorePane.getPrefHeight()/2);
 		scoreText.setWrappingWidth(scorePane.getPrefWidth());
 		scoreText.setTextAlignment(TextAlignment.CENTER);
-		scorePane.getChildren().addAll(scoreText, apple, trophy);
+		
+		Pane quit = new Pane();
+		quit.setPrefSize(sideLength*3, sideLength*1.25);
+		quit.setTranslateX(scorePane.getPrefWidth()-sideLength-quit.getPrefWidth());
+		quit.setTranslateY((scorePane.getPrefHeight()-quit.getPrefHeight())/2);
+		quit.setBackground(new Background(new BackgroundFill(Color.gray(.6), new CornerRadii(5), null)));
+		Background og = quit.getBackground();
+		quit.setOnMouseClicked(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent event) {
+				System.exit(0);
+			}
+		});
+		quit.setOnMouseEntered(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent event) {
+				quit.setBackground(new Background(new BackgroundFill(Color.gray(.675), og.getFills().get(0).getRadii(), null)));
+				game.mainStage.getScene().setCursor(Cursor.HAND);
+			}
+		});
+		quit.setOnMouseExited(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent event) {
+				quit.setBackground(og);
+				game.mainStage.getScene().setCursor(Cursor.DEFAULT);
+			}
+		});
+		
+		Text quitText = new Text("Quit");
+		quitText.setTextOrigin(VPos.CENTER);
+		quitText.setFont(Font.font("Roboto", sideLength*.6));
+		quitText.setFill(Color.WHITE);
+		quitText.setY(quit.getPrefHeight()/2);
+		quitText.setWrappingWidth(quit.getPrefWidth());
+		quitText.setTextAlignment(TextAlignment.CENTER);
+		quit.getChildren().add(quitText);
+		scorePane.getChildren().addAll(scoreText, apple, trophy, quit);
 		
 		directionsBox = new Pane();
 		directionsBox.setPrefSize(sideLength*8.5, sideLength*1.5);
@@ -146,7 +192,9 @@ public class Grid {
 	}
 	
 	public Group getPanes() {
-		return new Group(scorePane, grid, snakeGrid, pausePane);
+		Group g = new Group(scorePane, grid, snakeGrid, pausePane);
+		pausePane.toBack();
+		return g;
 	}
 	
 	public Snake getSnake() {
@@ -235,6 +283,7 @@ public class Grid {
 			}
 		}, 0, timeInterval);
 		paused = false;
+		pausePane.toBack();
 		pausePane.setOpacity(0);
 	}
 	
