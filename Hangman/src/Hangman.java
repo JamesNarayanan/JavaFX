@@ -13,6 +13,7 @@ import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.VPos;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyEvent;
@@ -801,13 +802,15 @@ public class Hangman extends Application {
 		p.setOnMouseEntered(new EventHandler<MouseEvent>() {
 	        @Override
 	        public void handle(MouseEvent event) {
-	        		p.setBackground(new Background(new BackgroundFill(null, null, null)));
+	        	mainStage.getScene().setCursor(Cursor.HAND);
+        		p.setBackground(new Background(new BackgroundFill(null, null, null)));
 	        }
 	    });
 		p.setOnMouseExited(new EventHandler<MouseEvent>() {
 	        @Override
 	        public void handle(MouseEvent event) {
-	        		p.setBackground(new Background(new BackgroundFill(hoverColor, null, null)));
+	        	mainStage.getScene().setCursor(Cursor.DEFAULT);
+        		p.setBackground(new Background(new BackgroundFill(hoverColor, null, null)));
 	        }
 	    });
 	}
