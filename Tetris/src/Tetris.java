@@ -14,6 +14,7 @@ import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.VPos;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -133,7 +134,6 @@ public class Tetris extends Application {
 				mainStage.setScene(controlsScene());
 			}
 		};
-		init.setOnMouseClicked(switchToControls);
 		
 		Text welcome = new Text("Welcome to Tetris!");
 		welcome.setWrappingWidth(screenWidth);
@@ -150,6 +150,7 @@ public class Tetris extends Application {
 		init.getChildren().addAll(welcome, directions);
 		Scene scene = new Scene(init);
 		scene.setOnKeyPressed(switchToControls);
+		scene.setOnMouseClicked(switchToControls);
 		return scene;
 	}
 	
@@ -185,6 +186,7 @@ public class Tetris extends Application {
 		pane.getChildren().addAll(title, directions);
 		Scene scene = new Scene(pane);
 		scene.setOnKeyPressed(switchToMain);
+		scene.setOnMouseClicked(switchToMain);
 		return scene;
 	}
 	
@@ -1113,12 +1115,14 @@ public class Tetris extends Application {
 			@Override
 			public void handle(MouseEvent event) {
 				playAgain.setOpacity(.9);
+				mainStage.getScene().setCursor(Cursor.HAND);
 			}
 		});
 		playAgain.setOnMouseExited(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
 				playAgain.setOpacity(1);
+				mainStage.getScene().setCursor(Cursor.DEFAULT);
 			}
 		});
 		playAgain.setBackground(new Background(new BackgroundFill(mainColor, null, null)));
@@ -1155,12 +1159,14 @@ public class Tetris extends Application {
 			@Override
 			public void handle(MouseEvent event) {
 				end.setOpacity(.9);
+				mainStage.getScene().setCursor(Cursor.HAND);
 			}
 		});
 		end.setOnMouseExited(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
 				end.setOpacity(1);
+				mainStage.getScene().setCursor(Cursor.DEFAULT);
 			}
 		});
 		Text endText = new Text("Click here to end");
