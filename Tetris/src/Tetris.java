@@ -803,9 +803,22 @@ public class Tetris extends Application {
 			break;
 		}
 		pivotPoint[0] = rows[blockNum]; pivotPoint[1] = cols[blockNum];
-		if(!canRotate(blockNum, pivotPoint))
+		if(!rotate(blockNum, pivotPoint, false))
 			return;
+		
 		eraseProjection();
+		rotate(blockNum, pivotPoint, true);
+		project();
+	}
+	
+	/**
+	 * Checks if the block can be rotated or rotates the block
+	 * @param blockNum The number of the block in the arrays of {@link rows} and {@link cols}
+	 * @param pivotPoint The point which the rotation pivots around
+	 * @param rotate If the blocks should be checked if they can rotate or if they should be rotated
+	 * @return If the block can be rotated
+	 */
+	private boolean rotate(int blockNum, int[] pivotPoint, final boolean rotate) {
 		ArrayList<Integer> moveList = new ArrayList<>();
 		for(int i = 0; i<4; i++) {
 			if(i!=blockNum) {
@@ -815,35 +828,19 @@ public class Tetris extends Application {
 				int[] Vt = { R[0][0]*Vr[0] + R[0][1]*Vr[1] , R[1][0]*Vr[0] + R[1][1]*Vr[1] };
 				int[] newPoint = { pivotPoint[0] + Vt[0] , pivotPoint[1] + Vt[1] };
 				
-				Paint color = rect[rows[i]*rowLength + cols[i]].getFill();
-				if(!moveList.contains(cols[i] + rows[i]*rowLength))
-					rect[rows[i]*rowLength + cols[i]].setFill(rectBg);
-				rows[i] = newPoint[0];
-				cols[i] = newPoint[1];
-				rect[rows[i]*rowLength + cols[i]].setFill(color);
-				moveList.add(rows[i]*rowLength + cols[i]);
-			}
-		}
-		project();
-	}
-	
-	/**
-	 * Checks if the block can be rotated
-	 * @param blockNum The number of the block in the arrays of {@link rows} and {@link cols}
-	 * @param pivotPoint The point which the rotation pivots around
-	 * @return If the block can be rotated
-	 */
-	private boolean canRotate(int blockNum, int[] pivotPoint) {
-		for(int i = 0; i<4; i++) {
-			if(i!=blockNum) {
-				int[] point = {rows[i], cols[i]};
-				int[] Vr = {point[0]-pivotPoint[0], point[1]-pivotPoint[1]};
-				int[][] R = { {0, -1} , {1, 0} };
-				int[] Vt = { R[0][0]*Vr[0] + R[0][1]*Vr[1] , R[1][0]*Vr[0] + R[1][1]*Vr[1] };
-				int[] newPoint = { pivotPoint[0] + Vt[0] , pivotPoint[1] + Vt[1] };
-				
-				if(newPoint[0]<0 || newPoint[0]>=numRows || newPoint[1]<0 || newPoint[1]>=rowLength || placed[newPoint[0]*rowLength+newPoint[1]])
-					return false;
+				if(!rotate) {
+					if(newPoint[0]<0 || newPoint[0]>=numRows || newPoint[1]<0 || newPoint[1]>=rowLength || placed[newPoint[0]*rowLength+newPoint[1]])
+						return false;
+				}
+				else {
+					Paint color = rect[rows[i]*rowLength + cols[i]].getFill();
+					if(!moveList.contains(cols[i] + rows[i]*rowLength))
+						rect[rows[i]*rowLength + cols[i]].setFill(rectBg);
+					rows[i] = newPoint[0];
+					cols[i] = newPoint[1];
+					rect[rows[i]*rowLength + cols[i]].setFill(color);
+					moveList.add(rows[i]*rowLength + cols[i]);
+				}
 			}
 		}
 		return true;
