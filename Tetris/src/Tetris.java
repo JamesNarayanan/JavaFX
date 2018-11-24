@@ -164,7 +164,6 @@ public class Tetris extends Application {
 				mainStage.setScene(mainScene());
 			}
 		};
-		pane.setOnMouseClicked(switchToMain);
 		
 		Text title = new Text("Controls:");
 		title.setWrappingWidth(screenWidth);
