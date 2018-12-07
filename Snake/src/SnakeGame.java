@@ -29,7 +29,7 @@ public class SnakeGame extends Application {
 		mainStage.show();
 	}
 	
-	private Scene mainScene() {
+	private Scene mainScene() { //Added from schools
 		Grid grid = new Grid(this);
 		grid.newSnake();
 		
