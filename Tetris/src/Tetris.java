@@ -75,7 +75,7 @@ public class Tetris extends Application {
 	private Timer timer;
 	private boolean wait;
 	private int scoreMultiplier;
-	private enum Direction {LEFT, RIGHT, DOWN}
+	private enum Direction {LEFT, RIGHT, DOWN, CLOCKWISE, COUNTERCLOCKWISE}
 	private enum BlockType {STRAIGHT, SQUARE, T, J, L, S, Z}
 	private BlockType blockType;
 	private BlockType[] nextBlocks;
@@ -171,10 +171,11 @@ public class Tetris extends Application {
 		title.setFont(Font.font(font, screenWidth/15.0));
 		title.setY(screenHeight/4);
 		
-		Text directions = new Text("Press left and right arrows to move left and right\n"
-				+ "Press the down arrow to move down one block and earn a point\n"
+		Text directions = new Text("Press left (A) and right (D) arrows to move left and right\n"
+				+ "Press the down (S) arrow to move down one block and earn a point\n"
 				+ "Press the space bar to move the tetrimino to the bottom and earn two points per block moved\n"
-				+ "Press the up arrow to rotate the tetrimino"
+				+ "Press the up arrow (W) to rotate the tetrimino"
+				+ "Press the shift key (E) to rotate the other way"
 				+ "\n\n\nPress anything to play!");
 		directions.setWrappingWidth(screenWidth*.9);
 		directions.setTextAlignment(TextAlignment.CENTER);
@@ -441,7 +442,11 @@ public class Tetris extends Application {
 										break;
 									case W:
 									case UP:
-										rotateBlock();
+										rotateBlock(Direction.COUNTERCLOCKWISE);
+										break;
+									case E:
+									case SHIFT:
+										rotateBlock(Direction.CLOCKWISE);
 										break;
 									case A:
 									case LEFT:
@@ -773,9 +778,10 @@ public class Tetris extends Application {
 	
 	/**
 	 * Rotates the block counterclockwise
+	 * @param dir Direction to rotate the block
 	 * @see <a href="https://www.youtube.com/watch?v=Atlr5vvdchY">Source</a>
 	 */
-	private void rotateBlock() {///<3
+	private void rotateBlock(Direction dir) {///<3
 		int[] pivotPoint = new int[2];
 		int blockNum = 0;
 		switch(blockType) {
@@ -802,11 +808,11 @@ public class Tetris extends Application {
 			break;
 		}
 		pivotPoint[0] = rows[blockNum]; pivotPoint[1] = cols[blockNum];
-		if(!rotate(blockNum, pivotPoint, false))
+		if(!rotate(blockNum, pivotPoint, false, dir))
 			return;
 		
 		eraseProjection();
-		rotate(blockNum, pivotPoint, true);
+		rotate(blockNum, pivotPoint, true, dir);
 		project();
 	}
 	
@@ -815,15 +821,17 @@ public class Tetris extends Application {
 	 * @param blockNum The number of the block in the arrays of {@link rows} and {@link cols}
 	 * @param pivotPoint The point which the rotation pivots around
 	 * @param rotate If the blocks should be checked if they can rotate or if they should be rotated
+	 * @param dir Direction to rotate the block
 	 * @return If the block can be rotated
 	 */
-	private boolean rotate(int blockNum, int[] pivotPoint, final boolean rotate) {
+	private boolean rotate(int blockNum, int[] pivotPoint, final boolean rotate, Direction dir) {
 		ArrayList<Integer> moveList = new ArrayList<>();
 		for(int i = 0; i<4; i++) {
 			if(i!=blockNum) {
 				int[] point = {rows[i], cols[i]};
 				int[] Vr = {point[0]-pivotPoint[0], point[1]-pivotPoint[1]};
-				int[][] R = { {0, -1} , {1, 0} };
+				int c = dir==Direction.CLOCKWISE ? 1 : -1;
+				int[][] R = { {0, 1*c} , {-1*c, 0} };
 				int[] Vt = { R[0][0]*Vr[0] + R[0][1]*Vr[1] , R[1][0]*Vr[0] + R[1][1]*Vr[1] };
 				int[] newPoint = { pivotPoint[0] + Vt[0] , pivotPoint[1] + Vt[1] };
 				
