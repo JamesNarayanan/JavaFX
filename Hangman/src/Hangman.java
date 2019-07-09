@@ -170,7 +170,7 @@ public class Hangman extends Application {
 		Pane top = new Pane();
 		top.setPrefSize(screenWidth, screenHeight/2.0);
 		top.setBackground(new Background(new BackgroundFill(background, null, null)));
-		Text welcomeMessage = new Text(0, top.getPrefHeight()/2.0, "Welome to Hangman!"); //the horizontal position of the text, the vertical position of the text, the text
+		Text welcomeMessage = new Text(0, top.getPrefHeight()/2.0, "Welcome to Hangman!"); //the horizontal position of the text, the vertical position of the text, the text
 		welcomeMessage.setWrappingWidth(screenWidth);
 		welcomeMessage.setTextOrigin(VPos.CENTER);
 		welcomeMessage.setTextAlignment(TextAlignment.CENTER);
