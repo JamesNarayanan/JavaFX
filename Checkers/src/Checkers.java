@@ -5,6 +5,8 @@ import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
@@ -22,6 +24,7 @@ public class Checkers extends Application {
 	private Stage mainStage;
 	private double gameHeight;
 	private double gameWidth;
+	private double tileSize;
 	private Color background;
 	
 	public static void main(String[] args) {
@@ -30,8 +33,9 @@ public class Checkers extends Application {
 	
 	@Override
 	public void init() {
-		gameHeight = Screen.getPrimary().getVisualBounds().getHeight();
+		gameHeight = Screen.getPrimary().getVisualBounds().getHeight() - 50;
 		gameWidth = gameHeight*1.5;
+		tileSize = gameHeight/8;
 		
 		background = Color.RED;
 	}
@@ -58,13 +62,13 @@ public class Checkers extends Application {
 		
 		Pane playBtn = new Pane();
 		playBtn.setPrefSize(main.getPrefWidth()/2, main.getPrefHeight()/4);
-		playBtn.setBackground(new Background(new BackgroundFill(Color.grayRgb(50), null, null)));
+		playBtn.setBackground(new Background(new BackgroundFill(Color.grayRgb(120), null, null)));
 		playBtn.setTranslateX(gameWidth/2 - playBtn.getPrefWidth()/2);
 		playBtn.setTranslateY(gameHeight*2/3);
 		playBtn.setOnMouseClicked(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
-				System.out.println("Clicked Play");
+				mainStage.setScene(mainScene());
 			}
 		});
 		Text playText = new Text(0, playBtn.getPrefHeight()/2.0, "Play!"); //the horizontal position of the text, the vertical position of the text, the text
@@ -105,8 +109,35 @@ public class Checkers extends Application {
 		return new Scene(main);
 	}
 	
+	private Scene mainScene() {
+		HBox main = new HBox();
+		
+		GridPane grid = new GridPane();
+		for(int r = 0; r<8; r++) {
+			for(int c = 0; c<8; c++) {
+				Pane spot = new Pane();
+				spot.setPrefSize(tileSize, tileSize);
+				Color color;
+				if((r & 1) == (c & 1))
+					color = Color.BLACK;
+				else
+					color = background;
+				spot.setBackground(new Background(new BackgroundFill(color, null, null)));
+				grid.add(spot, c, r);
+			}
+		}
+		
+		Pane side = new Pane();
+		side.setBackground(new Background(new BackgroundFill(background.darker(), null, null)));
+		side.setPrefSize(gameHeight/2, gameHeight);
+		
+		main.getChildren().addAll(grid, side);
+		
+		return new Scene(main);
+	}
+	
 	private Polygon[] btnGradient(Pane frontPane, double offset) {
-		Stop[] stops = {new Stop(0, (Color) frontPane.getBackground().getFills().get(0).getFill()), new Stop(1, Color.BLACK)};
+		Stop[] stops = {new Stop(0, ((Color) frontPane.getBackground().getFills().get(0).getFill()).darker()), new Stop(1, Color.BLACK)};
 		Polygon topGradient = new Polygon();
 		topGradient.getPoints().addAll(
 			frontPane.getTranslateX(),										frontPane.getTranslateY(),
@@ -115,6 +146,7 @@ public class Checkers extends Application {
 			frontPane.getTranslateX() + frontPane.getPrefWidth(),			frontPane.getTranslateY(),
 			frontPane.getTranslateX(),										frontPane.getTranslateY()
 		);
+		topGradient.setStroke(Color.BLACK);
 		topGradient.setStrokeWidth(0);
 		topGradient.setFill(new LinearGradient(0, 1, 0, 0, true, CycleMethod.NO_CYCLE, stops));
 		
@@ -126,6 +158,7 @@ public class Checkers extends Application {
 			frontPane.getTranslateX() + frontPane.getPrefWidth(),			frontPane.getTranslateY() + frontPane.getPrefHeight(),
 			frontPane.getTranslateX() + frontPane.getPrefWidth(),			frontPane.getTranslateY()
 		);
+		rightGradient.setStroke(Color.BLACK);
 		rightGradient.setStrokeWidth(0);
 		rightGradient.setFill(new LinearGradient(0, 0, 1, 0, true, CycleMethod.NO_CYCLE, stops));
 		
