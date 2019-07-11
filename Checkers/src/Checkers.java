@@ -12,7 +12,9 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Stop;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polygon;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
@@ -26,6 +28,8 @@ public class Checkers extends Application {
 	private double gameWidth;
 	private double tileSize;
 	private Color background;
+	private Spot[][] spot;
+	private static Spot selectedSpot;
 	
 	public static void main(String[] args) {
 		launch(args);
@@ -113,19 +117,19 @@ public class Checkers extends Application {
 		HBox main = new HBox();
 		
 		GridPane grid = new GridPane();
+		spot = new Spot[8][8];
 		for(int r = 0; r<8; r++) {
 			for(int c = 0; c<8; c++) {
-				Pane spot = new Pane();
-				spot.setPrefSize(tileSize, tileSize);
-				Color color;
-				if((r & 1) == (c & 1))
-					color = Color.BLACK;
-				else
-					color = background;
-				spot.setBackground(new Background(new BackgroundFill(color, null, null)));
-				grid.add(spot, c, r);
+				boolean isBlack = (r & 1) == (c & 1);
+				boolean occupy = (isBlack && r < 3) || (isBlack && r > 4);
+				int player = 0;
+				if(r < 3) player = 1;
+				else if(r > 4) player = 2;
+				spot[r][c] = new Spot(r, c, player, isBlack, occupy, tileSize, background);
+				grid.add(spot[r][c], c, r);
 			}
 		}
+		
 		
 		Pane side = new Pane();
 		side.setBackground(new Background(new BackgroundFill(background.darker(), null, null)));
@@ -164,5 +168,131 @@ public class Checkers extends Application {
 		
 		Polygon[] gradients = {topGradient, rightGradient};
 		return gradients;
+	}
+	
+	public static Spot getSelectedSpot() { return selectedSpot; }
+	public static void setSelectedSpot(Spot newSpot) { selectedSpot = newSpot; }
+}
+
+class Checker extends Circle {
+	private final Color background;
+	
+	public Checker(int player, double tileSize, Color background) {
+		this.background = background;
+		
+		super.setCenterX(tileSize/2);
+		super.setCenterY(tileSize/2);
+		super.setRadius(.4*tileSize);
+		super.setFill(player == 1 ? Color.WHITE : background);
+	}
+	
+	public void changePlayer(int player) {
+		super.setFill(player == 1 ? Color.WHITE : background);
+	}
+}
+
+class Spot extends Pane {
+	private int r, c, player;
+	private final boolean isBlack;
+	private Checker checker;
+	private boolean occupied;
+	
+	private Rectangle[] selectedBorder;
+	
+	public Spot(int r, int c, int player, boolean isBlack, boolean occupy, double tileSize, Color background) {
+		this.r = r; this.c = c;
+		this.player = player;
+		this.isBlack = isBlack;
+		this.occupied = occupy;
+		this.checker = new Checker(player, tileSize, background);
+		if(occupied) {
+			super.getChildren().add(checker);
+		}
+		
+		super.setBackground(new Background(new BackgroundFill(isBlack ? Color.BLACK : background, null, null)));
+		super.setPrefSize(tileSize, tileSize);
+		
+		selectedBorder = new Rectangle[4];
+		double borderWidth = .05 * tileSize;
+		for(int i = 0; i<4; i++) {
+			selectedBorder[i] = new Rectangle(i % 2 == 1 ? tileSize : borderWidth, i % 2 == 1 ? borderWidth : tileSize, Color.WHITE); // width, height, fill
+		}
+		selectedBorder[2].setX(tileSize - borderWidth);
+		selectedBorder[3].setY(tileSize - borderWidth);
+		
+		super.setOnMouseClicked(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent event) {
+				if(isBlack) {
+				if(occupied)
+					selectStart();
+				else
+					selectEnd();
+				}
+			}
+		});
+	}
+	
+	private void selectStart() {
+		Spot spot = Checkers.getSelectedSpot();
+		
+		System.out.println("Start\nSelected Spot: " + spot);
+		System.out.println("This Spot: " + this + "\n");
+		
+		if(spot == this) { // If you re-clicked the currently selected spot
+			Checkers.setSelectedSpot(null);
+			for(Rectangle selectedBorderPiece : selectedBorder)
+				super.getChildren().remove(selectedBorderPiece);
+			return;
+		}
+		
+		if(spot == null || (spot.player == this.player && this.occupied)) {
+			// Select the spot that was clicked
+			if(spot != null) {
+				spot.unselect();
+			}
+			
+			Checkers.setSelectedSpot(this);
+			for(Rectangle selectedBorderPiece : selectedBorder)
+				super.getChildren().add(selectedBorderPiece);
+		}
+	}
+	private void selectEnd() {
+		Spot spot = Checkers.getSelectedSpot();
+		
+		System.out.println("End\nSelected Spot: " + spot);
+		System.out.println("This Spot: " + this + "\n");
+		
+		if(spot == null || !spot.isBlack)
+			return;
+		
+		if(Math.abs(this.r - spot.r) == 1 && Math.abs(this.c - spot.c) == 1) {
+			this.occupy(spot.player);
+			spot.unselect();
+			spot.unoccupy();
+			Checkers.setSelectedSpot(null);
+		}
+	}
+	
+	private void unselect() {
+		for(Rectangle selectedBorderPiece : selectedBorder)
+			super.getChildren().remove(selectedBorderPiece);
+	}
+	
+	private void unoccupy() {
+		this.player = 0;
+		this.occupied = false;
+		super.getChildren().remove(checker);
+	}
+	private void occupy(int player) {
+		this.player = player;
+		this.checker.changePlayer(player);
+		this.occupied = true;
+		super.getChildren().add(checker);
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("{Row: %s, Col: %s, Occ: %s}", r, c, occupied);
 	}
 }
