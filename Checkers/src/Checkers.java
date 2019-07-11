@@ -28,7 +28,7 @@ public class Checkers extends Application {
 	private double gameWidth;
 	private double tileSize;
 	private Color background;
-	private Spot[][] spot;
+	public static Spot[][] spot;
 	private static Spot selectedSpot;
 	
 	public static void main(String[] args) {
@@ -266,12 +266,27 @@ class Spot extends Pane {
 		if(spot == null || !spot.isBlack)
 			return;
 		
-		if(Math.abs(this.r - spot.r) == 1 && Math.abs(this.c - spot.c) == 1) {
-			this.occupy(spot.player);
-			spot.unselect();
-			spot.unoccupy();
-			Checkers.setSelectedSpot(null);
+		byte mult = 1;
+		if(spot.player == 2)
+			mult = -1;
+		
+		if(this.r - spot.r == mult*1 && Math.abs(this.c - spot.c) == 1) {
+			moveChecker();
 		}
+		else if(this.r - spot.r == mult*2 && Math.abs(this.c - spot.c) == 2 &&
+				Checkers.spot[(this.r + spot.r)/2][(this.c + spot.c)/2].player != spot.player &&
+				Checkers.spot[(this.r + spot.r)/2][(this.c + spot.c)/2].player != 0) {
+			Checkers.spot[(this.r + spot.r)/2][(this.c + spot.c)/2].unoccupy();
+			moveChecker();
+		}
+	}
+	
+	private void moveChecker() {
+		Spot spot = Checkers.getSelectedSpot();
+		this.occupy(spot.player);
+		spot.unselect();
+		spot.unoccupy();
+		Checkers.setSelectedSpot(null);
 	}
 	
 	private void unselect() {
@@ -279,20 +294,20 @@ class Spot extends Pane {
 			super.getChildren().remove(selectedBorderPiece);
 	}
 	
-	private void unoccupy() {
-		this.player = 0;
-		this.occupied = false;
-		super.getChildren().remove(checker);
-	}
 	private void occupy(int player) {
 		this.player = player;
 		this.checker.changePlayer(player);
 		this.occupied = true;
 		super.getChildren().add(checker);
 	}
+	private void unoccupy() {
+		this.player = 0;
+		this.occupied = false;
+		super.getChildren().remove(checker);
+	}
 	
 	@Override
 	public String toString() {
-		return String.format("{Row: %s, Col: %s, Occ: %s}", r, c, occupied);
+		return String.format("{Row: %s, Col: %s, Player: %s}", r, c, player);
 	}
 }
