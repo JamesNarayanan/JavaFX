@@ -30,6 +30,7 @@ public class Checkers extends Application {
 	private Color background;
 	public static Spot[][] spot;
 	private static Spot selectedSpot;
+	public static int turn;
 	
 	public static void main(String[] args) {
 		launch(args);
@@ -42,6 +43,8 @@ public class Checkers extends Application {
 		tileSize = gameHeight/8;
 		
 		background = Color.RED;
+		
+		turn = 1;
 	}
 	
 	@Override
@@ -224,16 +227,18 @@ class Spot extends Pane {
 			@Override
 			public void handle(MouseEvent event) {
 				if(isBlack) {
-				if(occupied)
-					selectStart();
-				else
-					selectEnd();
+					if(occupied)
+						selectStart();
+					else
+						selectEnd();
 				}
 			}
 		});
 	}
 	
 	private void selectStart() {
+		if(Checkers.turn != this.player) return;
+		
 		Spot spot = Checkers.getSelectedSpot();
 		
 		System.out.println("Start\nSelected Spot: " + spot);
@@ -287,6 +292,8 @@ class Spot extends Pane {
 		spot.unselect();
 		spot.unoccupy();
 		Checkers.setSelectedSpot(null);
+		
+		Checkers.turn = Checkers.turn == 1 ? 2 : 1;
 	}
 	
 	private void unselect() {
