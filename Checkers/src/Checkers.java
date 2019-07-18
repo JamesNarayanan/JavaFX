@@ -1,6 +1,7 @@
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.geometry.VPos;
+import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
@@ -26,11 +27,14 @@ public class Checkers extends Application {
 	private Stage mainStage;
 	private double gameHeight;
 	private double gameWidth;
-	private double tileSize;
-	private Color background;
+	public static double tileSize;
+	public static Color background;
 	public static Spot[][] spot;
 	private static Spot selectedSpot;
 	public static int turn;
+	public static int[] pieces;
+	public static Text turnText;
+	public static Text[] piecesText;
 	
 	public static void main(String[] args) {
 		launch(args);
@@ -44,7 +48,7 @@ public class Checkers extends Application {
 		
 		background = Color.RED;
 		
-		turn = 1;
+		turn = Math.random() > .5 ? 0 : 1;
 	}
 	
 	@Override
@@ -125,10 +129,10 @@ public class Checkers extends Application {
 			for(int c = 0; c<8; c++) {
 				boolean isBlack = (r & 1) == (c & 1);
 				boolean occupy = (isBlack && r < 3) || (isBlack && r > 4);
-				int player = 0;
-				if(r < 3) player = 1;
-				else if(r > 4) player = 2;
-				spot[r][c] = new Spot(r, c, player, isBlack, occupy, tileSize, background);
+				int player = -1;
+				if(r < 3) player = 0;
+				else if(r > 4) player = 1;
+				spot[r][c] = new Spot(r, c, player, isBlack, occupy);
 				grid.add(spot[r][c], c, r);
 			}
 		}
@@ -137,6 +141,27 @@ public class Checkers extends Application {
 		Pane side = new Pane();
 		side.setBackground(new Background(new BackgroundFill(background.darker(), null, null)));
 		side.setPrefSize(gameHeight/2, gameHeight);
+		
+		turnText = new Text(0, 50, "Turn: " + (turn == 0 ? "White" : "Colored"));
+		turnText.setWrappingWidth(side.getPrefWidth());
+		turnText.setTextOrigin(VPos.CENTER);
+		turnText.setTextAlignment(TextAlignment.CENTER);
+		turnText.setFont(Font.font("helvetica", FontWeight.BOLD, 50));
+		turnText.setFill(Color.WHITE);
+		
+		pieces = new int[2]; pieces[0] = 12; pieces[1] = 12;
+		piecesText = new Text[2];
+		piecesText[0] = new Text(0, 150, "White Pieces: 12");
+		piecesText[1] = new Text(0, 200, "Colored Pieces: 12");
+		for(int i = 0; i<2; i++) {
+			piecesText[i].setWrappingWidth(side.getPrefWidth());
+			piecesText[i].setTextOrigin(VPos.CENTER);
+			piecesText[i].setTextAlignment(TextAlignment.CENTER);
+			piecesText[i].setFont(Font.font("helvetica", FontWeight.BOLD, side.getPrefWidth()/10));
+			piecesText[i].setFill(Color.WHITE);
+		}
+		
+		side.getChildren().addAll(turnText, piecesText[0], piecesText[1]);
 		
 		main.getChildren().addAll(grid, side);
 		
@@ -177,20 +202,33 @@ public class Checkers extends Application {
 	public static void setSelectedSpot(Spot newSpot) { selectedSpot = newSpot; }
 }
 
-class Checker extends Circle {
+class Checker extends Group {
+	private Circle circle;
 	private final Color background;
+	private boolean king;
 	
 	public Checker(int player, double tileSize, Color background) {
 		this.background = background;
+		king = false;
 		
-		super.setCenterX(tileSize/2);
-		super.setCenterY(tileSize/2);
-		super.setRadius(.4*tileSize);
-		super.setFill(player == 1 ? Color.WHITE : background);
+		circle = new Circle();
+		circle.setCenterX(tileSize/2);
+		circle.setCenterY(tileSize/2);
+		circle.setRadius(.4*tileSize);
+		circle.setFill(player == 0 ? Color.WHITE : background);
+		super.getChildren().add(circle);
 	}
 	
 	public void changePlayer(int player) {
-		super.setFill(player == 1 ? Color.WHITE : background);
+		circle.setFill(player == 0 ? Color.WHITE : background);
+	}
+	
+	public void kingIt() {
+		this.king = true;
+		
+	}
+	public boolean isKing() {
+		return this.king;
 	}
 }
 
@@ -202,7 +240,10 @@ class Spot extends Pane {
 	
 	private Rectangle[] selectedBorder;
 	
-	public Spot(int r, int c, int player, boolean isBlack, boolean occupy, double tileSize, Color background) {
+	public Spot(int r, int c, int player, boolean isBlack, boolean occupy) {
+		double tileSize = Checkers.tileSize;
+		Color background = Checkers.background;
+		
 		this.r = r; this.c = c;
 		this.player = player;
 		this.isBlack = isBlack;
@@ -272,28 +313,35 @@ class Spot extends Pane {
 			return;
 		
 		byte mult = 1;
-		if(spot.player == 2)
+		if(spot.player == 1)
 			mult = -1;
 		
-		if(this.r - spot.r == mult*1 && Math.abs(this.c - spot.c) == 1) {
-			moveChecker();
+		if(this.r - spot.r == mult && Math.abs(this.c - spot.c) == 1 ||
+			(this.checker.isKing() && this.r - spot.r == mult*-1 && Math.abs(this.c - spot.c) == 1)
+		) {
+			moveChecker(false);
 		}
 		else if(this.r - spot.r == mult*2 && Math.abs(this.c - spot.c) == 2 &&
 				Checkers.spot[(this.r + spot.r)/2][(this.c + spot.c)/2].player != spot.player &&
-				Checkers.spot[(this.r + spot.r)/2][(this.c + spot.c)/2].player != 0) {
+				Checkers.spot[(this.r + spot.r)/2][(this.c + spot.c)/2].player != -1) {
 			Checkers.spot[(this.r + spot.r)/2][(this.c + spot.c)/2].unoccupy();
-			moveChecker();
+			moveChecker(false);
+			
+			Checkers.piecesText[Checkers.turn].setText(String.format("%s Pieces: %s", Checkers.turn==0 ? "White" : "Colored", --Checkers.pieces[Checkers.turn]));
 		}
 	}
 	
-	private void moveChecker() {
+	private void moveChecker(boolean moveAgain) {
 		Spot spot = Checkers.getSelectedSpot();
-		this.occupy(spot.player);
+		this.occupy();
 		spot.unselect();
 		spot.unoccupy();
 		Checkers.setSelectedSpot(null);
 		
-		Checkers.turn = Checkers.turn == 1 ? 2 : 1;
+		if(!moveAgain) {
+			Checkers.turn = Checkers.turn == 0 ? 1 : 0;
+			Checkers.turnText.setText("Turn: " + (Checkers.turn == 0 ? "White" : "Colored"));
+		}
 	}
 	
 	private void unselect() {
@@ -301,14 +349,19 @@ class Spot extends Pane {
 			super.getChildren().remove(selectedBorderPiece);
 	}
 	
-	private void occupy(int player) {
-		this.player = player;
-		this.checker.changePlayer(player);
+	private void occupy() {
+		Spot spot = Checkers.getSelectedSpot();
+		this.player = spot.player;
+		this.checker.changePlayer(spot.player);
+		if(!this.checker.isKing() && (this.r == 0 && this.player == 1) || (this.r == 7 && this.player == 0)) {
+			this.checker.kingIt();
+			System.out.println("Kinging checker: " + this + "\n");
+		}
 		this.occupied = true;
-		super.getChildren().add(checker);
+		super.getChildren().add(this.checker);
 	}
 	private void unoccupy() {
-		this.player = 0;
+		this.player = -1;
 		this.occupied = false;
 		super.getChildren().remove(checker);
 	}
