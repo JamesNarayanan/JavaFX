@@ -24,9 +24,9 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 public class Checkers extends Application {
-	private Stage mainStage;
-	private double gameHeight;
-	private double gameWidth;
+	public static Stage mainStage;
+	private static double gameHeight;
+	private static double gameWidth;
 	public static double tileSize;
 	public static Color background;
 	public static Spot[][] spot;
@@ -43,8 +43,8 @@ public class Checkers extends Application {
 	@Override
 	public void init() {
 		gameHeight = Screen.getPrimary().getVisualBounds().getHeight() - 50;
-		gameWidth = gameHeight*1.5;
-		tileSize = gameHeight/8;
+		gameWidth = gameHeight * 1.5;
+		tileSize = gameHeight / 8;
 		
 		background = Color.RED;
 		
@@ -64,7 +64,7 @@ public class Checkers extends Application {
 		Pane main = new Pane();
 		main.setPrefSize(gameWidth, gameHeight);
 		main.setBackground(new Background(new BackgroundFill(background, null, null)));
-		Text welcomeMessage = new Text(0, main.getPrefHeight()/3.0, "Welcome to Checkers!"); //the horizontal position of the text, the vertical position of the text, the text
+		Text welcomeMessage = new Text(0, main.getPrefHeight() / 3.0, "Welcome to Checkers!"); //the horizontal position of the text, the vertical position of the text, the text
 		welcomeMessage.setWrappingWidth(gameWidth);
 		welcomeMessage.setTextOrigin(VPos.CENTER);
 		welcomeMessage.setTextAlignment(TextAlignment.CENTER);
@@ -72,17 +72,17 @@ public class Checkers extends Application {
 		main.getChildren().add(welcomeMessage);
 		
 		Pane playBtn = new Pane();
-		playBtn.setPrefSize(main.getPrefWidth()/2, main.getPrefHeight()/4);
+		playBtn.setPrefSize(main.getPrefWidth() / 2, main.getPrefHeight() / 4);
 		playBtn.setBackground(new Background(new BackgroundFill(Color.grayRgb(120), null, null)));
-		playBtn.setTranslateX(gameWidth/2 - playBtn.getPrefWidth()/2);
-		playBtn.setTranslateY(gameHeight*2/3);
+		playBtn.setTranslateX(gameWidth / 2 - playBtn.getPrefWidth() / 2);
+		playBtn.setTranslateY(gameHeight * 2/3);
 		playBtn.setOnMouseClicked(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
 				mainStage.setScene(mainScene());
 			}
 		});
-		Text playText = new Text(0, playBtn.getPrefHeight()/2.0, "Play!"); //the horizontal position of the text, the vertical position of the text, the text
+		Text playText = new Text(0, playBtn.getPrefHeight() / 2.0, "Play!"); //the horizontal position of the text, the vertical position of the text, the text
 		playText.setWrappingWidth(playBtn.getPrefWidth());
 		playText.setTextOrigin(VPos.CENTER);
 		playText.setTextAlignment(TextAlignment.CENTER);
@@ -90,37 +90,17 @@ public class Checkers extends Application {
 		playText.setFill(Color.WHITE);
 		playBtn.getChildren().add(playText);
 		
-		double offset = playBtn.getPrefWidth()/50;
+		double offset = playBtn.getPrefWidth() / 50;
 		Polygon[] playBtnGradient = btnGradient(playBtn, offset);
+		applyHidingBehavior(playBtn, playBtnGradient, offset);
 		
 		main.getChildren().add(playBtn);
 		main.getChildren().addAll(playBtnGradient);
 		
-		playBtn.setOnMousePressed(new EventHandler<MouseEvent>() {
-			@Override
-			public void handle(MouseEvent event) {
-				playBtn.setTranslateX(playBtn.getTranslateX() + offset);
-				playBtn.setTranslateY(playBtn.getTranslateY() - offset);
-				
-				playBtnGradient[0].setVisible(false);
-				playBtnGradient[1].setVisible(false);
-			}
-		});
-		playBtn.setOnMouseReleased(new EventHandler<MouseEvent>() {
-			@Override
-			public void handle(MouseEvent event) {
-				playBtn.setTranslateX(playBtn.getTranslateX() - offset);
-				playBtn.setTranslateY(playBtn.getTranslateY() + offset);
-				
-				playBtnGradient[0].setVisible(true);
-				playBtnGradient[1].setVisible(true);
-			}
-		});
-		
 		return new Scene(main);
 	}
 	
-	private Scene mainScene() {
+	private static Scene mainScene() {
 		HBox main = new HBox();
 		
 		GridPane grid = new GridPane();
@@ -140,7 +120,7 @@ public class Checkers extends Application {
 		
 		Pane side = new Pane();
 		side.setBackground(new Background(new BackgroundFill(background.darker(), null, null)));
-		side.setPrefSize(gameHeight/2, gameHeight);
+		side.setPrefSize(gameHeight / 2, gameHeight);
 		
 		turnText = new Text(0, 50, "Turn: " + (turn == 0 ? "White" : "Colored"));
 		turnText.setWrappingWidth(side.getPrefWidth());
@@ -157,7 +137,7 @@ public class Checkers extends Application {
 			piecesText[i].setWrappingWidth(side.getPrefWidth());
 			piecesText[i].setTextOrigin(VPos.CENTER);
 			piecesText[i].setTextAlignment(TextAlignment.CENTER);
-			piecesText[i].setFont(Font.font("helvetica", FontWeight.BOLD, side.getPrefWidth()/10));
+			piecesText[i].setFont(Font.font("helvetica", FontWeight.BOLD, side.getPrefWidth() / 10));
 			piecesText[i].setFill(Color.WHITE);
 		}
 		
@@ -168,7 +148,55 @@ public class Checkers extends Application {
 		return new Scene(main);
 	}
 	
-	private Polygon[] btnGradient(Pane frontPane, double offset) {
+	public static Scene endScene() {
+		Pane bgPane = new Pane();
+		bgPane.setPrefSize(gameWidth, gameHeight);
+		bgPane.setBackground(new Background(new BackgroundFill(background, null, null)));
+		
+		Text endText = new Text(0, gameHeight * .25, "GAME OVER!");
+		endText.setWrappingWidth(bgPane.getPrefWidth());
+		endText.setTextOrigin(VPos.CENTER);
+		endText.setTextAlignment(TextAlignment.CENTER);
+		endText.setFont(Font.font("helvetica", FontWeight.BOLD, bgPane.getPrefWidth() / 10));
+		endText.setFill(Color.WHITE);
+		
+		Text winnerText = new Text(0, gameHeight * .4, (turn == 1 ? "White" : "Colored") + " Player Wins!");
+		winnerText.setWrappingWidth(bgPane.getPrefWidth());
+		winnerText.setTextOrigin(VPos.CENTER);
+		winnerText.setTextAlignment(TextAlignment.CENTER);
+		winnerText.setFont(Font.font("helvetica", FontWeight.BOLD, bgPane.getPrefWidth() / 15));
+		winnerText.setFill(Color.WHITE);
+		
+		Pane playAgainBtn = new Pane();
+		playAgainBtn.setPrefSize(gameWidth / 2, gameHeight * .2);
+		playAgainBtn.setBackground(new Background(new BackgroundFill(Color.grayRgb(120), null, null)));
+		playAgainBtn.setTranslateX(gameWidth / 2 - playAgainBtn.getPrefWidth() / 2); playAgainBtn.setTranslateY(gameHeight * .6);
+		playAgainBtn.setOnMouseClicked(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent event) {
+				mainStage.setScene(mainScene());
+			}
+		});
+		
+		Text playAgainBtnText = new Text(0, playAgainBtn.getPrefHeight()/2, "Play Again!");
+		playAgainBtnText.setWrappingWidth(playAgainBtn.getPrefWidth());
+		playAgainBtnText.setTextOrigin(VPos.CENTER);
+		playAgainBtnText.setTextAlignment(TextAlignment.CENTER);
+		playAgainBtnText.setFont(Font.font("helvetica", FontWeight.BOLD, playAgainBtn.getPrefWidth() / 10));
+		playAgainBtnText.setFill(Color.WHITE);
+		playAgainBtn.getChildren().add(playAgainBtnText);
+		
+		double offset = playAgainBtn.getPrefWidth() / 50;
+		Polygon[] playAgainBtnGradient = btnGradient(playAgainBtn, offset);
+		applyHidingBehavior(playAgainBtn, playAgainBtnGradient, offset);
+		
+		bgPane.getChildren().addAll(endText, winnerText, playAgainBtn);
+		bgPane.getChildren().addAll(playAgainBtnGradient);
+		
+		return new Scene(bgPane);
+	}
+	
+	private static Polygon[] btnGradient(Pane frontPane, double offset) {
 		Stop[] stops = {new Stop(0, ((Color) frontPane.getBackground().getFills().get(0).getFill()).darker()), new Stop(1, Color.BLACK)};
 		Polygon topGradient = new Polygon();
 		topGradient.getPoints().addAll(
@@ -197,6 +225,28 @@ public class Checkers extends Application {
 		Polygon[] gradients = {topGradient, rightGradient};
 		return gradients;
 	}
+	private static void applyHidingBehavior(Pane btn, Polygon[] btnGradient, double offset) {
+		btn.setOnMousePressed(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent event) {
+				btn.setTranslateX(btn.getTranslateX() + offset);
+				btn.setTranslateY(btn.getTranslateY() - offset);
+				
+				btnGradient[0].setVisible(false);
+				btnGradient[1].setVisible(false);
+			}
+		});
+		btn.setOnMouseReleased(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent event) {
+				btn.setTranslateX(btn.getTranslateX() - offset);
+				btn.setTranslateY(btn.getTranslateY() + offset);
+				
+				btnGradient[0].setVisible(true);
+				btnGradient[1].setVisible(true);
+			}
+		});
+	}
 	
 	public static Spot getSelectedSpot() { return selectedSpot; }
 	public static void setSelectedSpot(Spot newSpot) { selectedSpot = newSpot; }
@@ -204,6 +254,7 @@ public class Checkers extends Application {
 
 class Checker extends Group {
 	private Circle circle;
+	private Circle kingDot;
 	private final Color background;
 	private boolean king;
 	
@@ -211,11 +262,9 @@ class Checker extends Group {
 		this.background = background;
 		king = false;
 		
-		circle = new Circle();
-		circle.setCenterX(tileSize/2);
-		circle.setCenterY(tileSize/2);
-		circle.setRadius(.4*tileSize);
-		circle.setFill(player == 0 ? Color.WHITE : background);
+		circle = new Circle(tileSize / 2, tileSize / 2, .4 * tileSize, player == 0 ? Color.WHITE : background);
+		kingDot = new Circle(tileSize / 2, tileSize / 2, .05 * tileSize, Color.BLACK);
+		
 		super.getChildren().add(circle);
 	}
 	
@@ -223,9 +272,12 @@ class Checker extends Group {
 		circle.setFill(player == 0 ? Color.WHITE : background);
 	}
 	
-	public void kingIt() {
-		this.king = true;
-		
+	public void setKing(boolean king) {
+		this.king = king;
+		if(king)
+			super.getChildren().add(kingDot);
+		else
+			super.getChildren().remove(kingDot);
 	}
 	public boolean isKing() {
 		return this.king;
@@ -316,18 +368,22 @@ class Spot extends Pane {
 		if(spot.player == 1)
 			mult = -1;
 		
-		if(this.r - spot.r == mult && Math.abs(this.c - spot.c) == 1 ||
-			(this.checker.isKing() && this.r - spot.r == mult*-1 && Math.abs(this.c - spot.c) == 1)
+		if(Math.abs(this.c - spot.c) == 1  &&
+			(this.r - spot.r == mult || (spot.checker.isKing() && this.r - spot.r == -mult))
 		) {
 			moveChecker(false);
 		}
-		else if(this.r - spot.r == mult*2 && Math.abs(this.c - spot.c) == 2 &&
-				Checkers.spot[(this.r + spot.r)/2][(this.c + spot.c)/2].player != spot.player &&
-				Checkers.spot[(this.r + spot.r)/2][(this.c + spot.c)/2].player != -1) {
-			Checkers.spot[(this.r + spot.r)/2][(this.c + spot.c)/2].unoccupy();
+		else if(Math.abs(this.c - spot.c) == 2 &&
+				(this.r - spot.r == mult * 2 || (spot.checker.isKing() && this.r - spot.r == -mult * 2)) &&
+				Checkers.spot[(this.r + spot.r) / 2][(this.c + spot.c) / 2].player != spot.player &&
+				Checkers.spot[(this.r + spot.r) / 2][(this.c + spot.c) / 2].player != -1) {
+			Checkers.spot[(this.r + spot.r) / 2][(this.c + spot.c) / 2].unoccupy();
 			moveChecker(false);
 			
 			Checkers.piecesText[Checkers.turn].setText(String.format("%s Pieces: %s", Checkers.turn==0 ? "White" : "Colored", --Checkers.pieces[Checkers.turn]));
+			if(Checkers.pieces[Checkers.turn] == 0) {
+				Checkers.mainStage.setScene(Checkers.endScene());
+			}
 		}
 	}
 	
@@ -353,8 +409,9 @@ class Spot extends Pane {
 		Spot spot = Checkers.getSelectedSpot();
 		this.player = spot.player;
 		this.checker.changePlayer(spot.player);
-		if(!this.checker.isKing() && (this.r == 0 && this.player == 1) || (this.r == 7 && this.player == 0)) {
-			this.checker.kingIt();
+		this.checker.setKing(spot.checker.isKing());
+		if(!this.checker.isKing() && ((this.r == 0 && this.player == 1) || (this.r == 7 && this.player == 0))) {
+			this.checker.setKing(true);
 			System.out.println("Kinging checker: " + this + "\n");
 		}
 		this.occupied = true;
@@ -362,8 +419,10 @@ class Spot extends Pane {
 	}
 	private void unoccupy() {
 		this.player = -1;
+		
 		this.occupied = false;
-		super.getChildren().remove(checker);
+		super.getChildren().remove(this.checker);
+		this.checker.setKing(false);
 	}
 	
 	@Override
